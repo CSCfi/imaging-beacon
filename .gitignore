@@ -2,6 +2,6 @@ mongo-volume/
 .venv
 env/
 .env
-__pycache__/
+./app/_pycache__/
 *.py[cod]
 *$py.class

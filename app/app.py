@@ -2,7 +2,6 @@ import os
 from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
 
-
 application = Flask(__name__)
 application.config["MONGO_URI"] = 'mongodb://' + os.environ['MONGODB_USERNAME'] + ':' + os.environ['MONGODB_PASSWORD'] + '@' + os.environ['MONGODB_HOSTNAME'] + ':27017/' + os.environ['MONGODB_DATABASE'] + '?authSource=admin'
 
@@ -10,23 +9,39 @@ mongo = PyMongo(application)
 db = mongo.db
 
 @application.route('/')
+@application.route('/service-info')
 def index():
-    print('\x1b[6;30;42m' + str(application.config["MONGO_URI"]) + '\x1b[0m')
+    beacon_info = {
+        # TO DO implement some fallback mechanism for ID
+        "id": ".".join(reversed(request.host.split("."))),
+        "name": "Imaging beacon",
+        "type": "service_type",
+        "description": "description",
+        "organization": {
+            "name": "org_name",
+            "url": "org_welcomeUrl__",
+        },
+        "contactUrl": "__org_contactUrl__",
+        "documentationUrl": "__docs_url__",
+        "createdAt": "__createtime__",
+        "updatedAt": "__updatetime__",
+        "environment": "__service_env__",
+        "version": "__version__",
+    }
     return jsonify(
-        status=True,
-        message='Imaging beacon api'
+        beacon_info
     )
 
 @application.route('/db')
-def todo():
-    _todos = db.todo.find()
+def getItems():
+    _db = db.todo.find()
 
     item = {}
     data = []
-    for todo in _todos:
+    for i in _db:
         item = {
-            'id': str(todo['_id']),
-            'todo': todo['todo']
+            'id': str(i['_id']),
+            'item': i['todo']
         }
         data.append(item)
 
@@ -36,7 +51,7 @@ def todo():
     )
 
 @application.route('/submit', methods=['POST'])
-def createTodo():
+def submit():
     data = request.get_json(force=True)
     
     item = {
@@ -53,6 +68,13 @@ def createTodo():
 def searchQueary():
     return jsonify(
        
+    ),201
+
+@application.route('/remove', methods=['POST'])
+def remove():
+    data = request.get_json(force=True)
+    return jsonify(
+        message='Removed successfully'   
     ),201
 
 if __name__ == "__main__":
