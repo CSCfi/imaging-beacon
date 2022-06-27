@@ -14,10 +14,10 @@ def index():
     print('\x1b[6;30;42m' + str(application.config["MONGO_URI"]) + '\x1b[0m')
     return jsonify(
         status=True,
-        message='Welcome to the Dockerized Flask MongoDB app!'
+        message='Imaging beacon api'
     )
 
-@application.route('/todo')
+@application.route('/db')
 def todo():
     _todos = db.todo.find()
 
@@ -35,10 +35,10 @@ def todo():
         data=data
     )
 
-@application.route('/todo', methods=['POST'])
+@application.route('/submit', methods=['POST'])
 def createTodo():
     data = request.get_json(force=True)
-    print('\x1b[6;30;42m' + str(data) + '\x1b[0m')
+    
     item = {
         'todo': data['todo']
     }
@@ -46,8 +46,14 @@ def createTodo():
 
     return jsonify(
         status=True,
-        message='To-do saved successfully!'
+        message='Saved successfully!'
     ), 201
+
+@application.route('/query', methods=['POST'])
+def searchQueary():
+    return jsonify(
+       
+    ),201
 
 if __name__ == "__main__":
     ENVIRONMENT_DEBUG = os.environ.get("APP_DEBUG", True)
