@@ -15,25 +15,25 @@ def index():
         # TO DO implement some fallback mechanism for ID
         "id": ".".join(reversed(request.host.split("."))),
         "name": "Imaging beacon",
-        "type": "service_type",
-        "description": "description",
+        "type": "",
+        "description": "",
         "organization": {
-            "name": "org_name",
-            "url": "org_welcomeUrl__",
+            "name": "",
+            "url": "",
         },
-        "contactUrl": "__org_contactUrl__",
-        "documentationUrl": "__docs_url__",
-        "createdAt": "__createtime__",
-        "updatedAt": "__updatetime__",
-        "environment": "__service_env__",
-        "version": "__version__",
+        "contactUrl": "",
+        "documentationUrl": "",
+        "createdAt": "",
+        "updatedAt": "",
+        "environment": "",
+        "version": "",
     }
     return jsonify(
         beacon_info
     )
 
 @application.route('/db')
-def getItems():
+def getItem():
     _db = db.todo.find()
 
     item = {}
