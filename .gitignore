@@ -1,0 +1,7 @@
+mongo-volume/
+.venv
+env/
+.env
+./api/_pycache__/
+*.py[cod]
+*$py.class
