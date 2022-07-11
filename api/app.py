@@ -12,7 +12,6 @@ db = mongo.db
 @application.route('/service-info')
 def index():
     beacon_info = {
-        # TO DO implement some fallback mechanism for ID
         "id": ".".join(reversed(request.host.split("."))),
         "name": "Imaging beacon",
         "type": "",
@@ -33,6 +32,7 @@ def index():
     )
 
 @application.route('/db')
+# lists all db items
 def getItem():
     _db = db.todo.find()
 
@@ -50,19 +50,6 @@ def getItem():
         data=data
     )
 
-@application.route('/submit', methods=['POST'])
-def submit():
-    data = request.get_json(force=True)
-    
-    item = {
-        'todo': data['todo']
-    }
-    db.todo.insert_one(item)
-
-    return jsonify(
-        status=True,
-        message='Saved successfully!'
-    ), 201
 
 @application.route('/query', methods=['POST'])
 def searchQueary():
@@ -70,12 +57,6 @@ def searchQueary():
        
     ),201
 
-@application.route('/remove', methods=['POST'])
-def remove():
-    data = request.get_json(force=True)
-    return jsonify(
-        message='Removed successfully'   
-    ),201
 
 if __name__ == "__main__":
     ENVIRONMENT_DEBUG = os.environ.get("APP_DEBUG", True)
