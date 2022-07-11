@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM python:3.8.13-alpine
 
 LABEL MAINTAINER="CSC"
 
