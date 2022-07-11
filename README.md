@@ -7,6 +7,13 @@
 ```
 docker-compose up -d
 ```
+#### Access api
+
+##### Beacon info 
+If all the containers start beacon info should be accessible from
+```
+http://localhost:80
+```
 #### Remove containers and volumes
 ```
 docker-compose down -v
