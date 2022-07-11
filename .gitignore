@@ -1,5 +1,6 @@
 mongo-volume/
 .venv
+venv/
 env/
 .env
 ./api/_pycache__/
