@@ -41,3 +41,8 @@ pip install -r requirements.txt
 ```
 flask run
 ```
+### Populating the MongoDb with test data
+```
+cd uploader/
+python app.py path/to/yourData.json
+```
