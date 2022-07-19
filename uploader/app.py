@@ -1,13 +1,12 @@
 import pymongo
 import json
 import sys
-
-
+import os
 
 client = pymongo.MongoClient("mongodb://"
-    + "test"
+    + os.environ["MONGO_INITDB_ROOT_USERNAME"]
     + ":"
-    + "test"
+    + os.environ["MONGO_INITDB_ROOT_PASSWORD"]
     + "@"
     + "localhost"
     + ":27017/"
