@@ -3,17 +3,14 @@ from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
 
 application = Flask(__name__)
-application.config["MONGO_URI"] = (
-    "mongodb://"
-    + os.environ["MONGODB_USERNAME"]
+application.config["MONGO_URI"] = ("mongodb://"
+    + os.environ["MONGO_INITDB_ROOT_USERNAME"]
     + ":"
-    + os.environ["MONGODB_PASSWORD"]
+    + os.environ["MONGO_INITDB_ROOT_PASSWORD"]
     + "@"
-    + os.environ["MONGODB_HOSTNAME"]
+    + "localhost"
     + ":27017/"
-    + os.environ["MONGODB_DATABASE"]
-    + "?authSource=admin"
-)
+    + "beacondb?authSource=admin")
 
 mongo = PyMongo(application)
 db = mongo.db
@@ -45,13 +42,32 @@ def index():
 @application.route("/db")
 def getItem():
     """List all db items."""
-    _db = db.todo.find()
+    dbImages = db.images.find()
+    dbDataset = db.dataset.find()
+    dbSamples = db.sample.find()
 
-    item = {}
-    data = []
-    for i in _db:
-        item = {"id": str(i["_id"]), "item": i["todo"]}
-        data.append(item)
+    datasets = []
+    for set in dbDataset:
+        setdata = {"id": str(set["_id"]), "alias": set["alias"], "attributes": set["attributes"], "title": set["title"], "description": set["description"], "datasetType": set["datasetType"], "policyRef": set["policyRef"], "imageRef": ["imageRef"]}
+        datasets.append(setdata)
+
+    images = []
+    
+    for i in dbImages:
+        image = {"id": str(i["_id"]), "alias": i["alias"], "attributes": i["attributes"], "studyRef": i["studyRef"], "imageOf": i["imageOf"], "imageType": i["imageType"], "files": i["files"]}
+        images.append(image)
+
+    samples = []
+    
+    for sample in dbSamples:
+        sampleData = {"id": str(sample["_id"]), "biologicalBeing": sample["biologicalBeing"], "specimen": sample["specimen"], "block": sample["block"], "slide": sample["slide"]}
+        samples.append(sampleData)
+
+    data = [] 
+    data.append({"datasets": datasets})   
+    data.append({"images": images})
+    data.append({"samples": samples})
+
 
     return jsonify(status=True, data=data)
 
