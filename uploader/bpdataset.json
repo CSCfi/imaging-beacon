@@ -1,0 +1,39 @@
+{
+   "alias":"Dataset_QoRIPbAPlP",
+   "attributes":{
+      "attribute":[
+         {
+            "tag":"version",
+            "value":"1"
+         },
+         {
+            "tag":"metadata_standard",
+            "value":"MSMdad_v0.1.0"
+         },
+         {
+            "tag":"ethical_approval",
+            "value":"ethical approval"
+         },
+         {
+            "tag":"contains_personal_data",
+            "value":"False"
+         }
+      ]
+   },
+   "title":"title",
+   "description":"text",
+   "datasetType":[
+      "Whole slide imaging"
+   ],
+   "policyRef":{
+      "refname":"Policy_rvxRDmjYyo"
+   },
+   "imageRef":[
+      {
+         "refname":"Image_tSQsAkvutz"
+      },
+      {
+         "refname":"Image_ReLyCtLAWo"
+      }
+   ]
+}
