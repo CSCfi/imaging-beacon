@@ -44,5 +44,5 @@ flask run
 ### Populating the MongoDb with test data
 ```
 cd uploader/
-python app.py path/to/yourData.json
+python app.py path/to/yourData.json collectionName
 ```
