@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
-
+import json
 
 application = Flask(__name__)
 application.config["MONGO_URI"] = ("mongodb://"
@@ -45,8 +45,9 @@ def getItem():
     """List all db items."""
     dbImages = db.images.find()
     dbDataset = db.dataset.find()
-    dbSamples = db.sample.find()
-
+    dbSamples = list(db.sample.find())
+    for coll in db.list_collection_names():
+        print(coll)
     datasets = []
     for set in dbDataset:
         setdata = {"id": str(set["_id"]), "alias": set["alias"], "attributes": set["attributes"], "title": set["title"], "description": set["description"], "datasetType": set["datasetType"], "policyRef": set["policyRef"], "imageRef": ["imageRef"]}
@@ -59,10 +60,12 @@ def getItem():
         images.append(image)
 
     samples = []
-    
+    print()
     for sample in dbSamples:
-        sampleData = {"id": str(sample["_id"]), "biologicalBeing": sample["biologicalBeing"], "specimen": sample["specimen"], "block": sample["block"], "slide": sample["slide"]}
-        samples.append(sampleData)
+        #sampleData = {"id": str(sample["_id"])}
+        samples.append(json.loads(json.dumps(sample, default=str)))
+
+    
 
     data = [] 
     data.append({"datasets": datasets})   
@@ -111,7 +114,6 @@ def getSamples(request):
 def getImages(dbSamples):
     images= []
     for sample in dbSamples:
-        print('\x1b[6;30;42m' + str(sample) + '\x1b[0m')
         keys = sample[0].keys()
         for key in keys:
             if(key == "biologicalBeing"):
