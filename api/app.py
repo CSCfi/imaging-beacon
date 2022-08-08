@@ -2,6 +2,7 @@ import os
 from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
 
+
 application = Flask(__name__)
 application.config["MONGO_URI"] = (
     "mongodb://"
@@ -45,23 +46,101 @@ def index():
 @application.route("/db")
 def getItem():
     """List all db items."""
-    _db = db.todo.find()
+    dbImages = db.images.find()
+    dbDataset = db.dataset.find()
+    dbSamples = db.sample.find()
 
-    item = {}
-    data = []
-    for i in _db:
-        item = {"id": str(i["_id"]), "item": i["todo"]}
-        data.append(item)
+    datasets = []
+    for set in dbDataset:
+        setdata = {"id": str(set["_id"]), "alias": set["alias"], "attributes": set["attributes"], "title": set["title"], "description": set["description"], "datasetType": set["datasetType"], "policyRef": set["policyRef"], "imageRef": ["imageRef"]}
+        datasets.append(setdata)
 
+    images = []
+    
+    for i in dbImages:
+        image = {"id": str(i["_id"]), "alias": i["alias"], "attributes": i["attributes"], "studyRef": i["studyRef"], "imageOf": i["imageOf"], "imageType": i["imageType"], "files": i["files"]}
+        images.append(image)
+
+    samples = []
+    
+    for sample in dbSamples:
+        sampleData = {"id": str(sample["_id"]), "biologicalBeing": sample["biologicalBeing"], "specimen": sample["specimen"], "block": sample["block"], "slide": sample["slide"]}
+        samples.append(sampleData)
+
+    data = [] 
+    data.append({"datasets": datasets})   
+    data.append({"images": images})
+    data.append({"samples": samples})
     return jsonify(status=True, data=data)
 
 
 @application.route("/query", methods=["POST"])
 def searchQueary():
+
     """Search query."""
-    return jsonify(), 201
+    # Get sample info  
+    dbSamples = getSamples(request)
+    if not dbSamples:
+        return jsonify(error="No results found.")
+    images = getImages(dbSamples)
+    return jsonify(results=str(images)), 201
 
+def getSamples(request):
+    dbSamples = []
+    requestBiological = request.get_json().get('biologicalBeing')
+    requestAnatomical = request.get_json().get('anatomicalSite')
+    requestSex = request.get_json().get('sex')
+    requestAge = request.get_json().get('age')
+    if(request.get_json().get("ageCondition") == "<"):
+        # Age less than
+        dbSamples.append(list(db.sample.find({'specimen.attributes.attribute': {"$elemMatch": 
+        { "tag": "age_at_extraction", "value": { "$lt": requestAge}, "tag": "anatomical_site", "value": requestAnatomical}}})))
 
+    elif(request.get_json().get("ageCondition") == ">"):
+        # Age more than
+        dbSamples.append(list(db.sample.find({'specimen.attributes.attribute': {"$elemMatch": 
+        { "tag": "age_at_extraction", "value": { "$gt": requestAge}, "tag": "anatomical_site", "value": requestAnatomical}}})))
+    elif(request.get_json().get("ageCondition") == "-"):
+        # Ages between       
+        dbSamples.append(list(db.sample.find({'specimen.attributes.attribute': {"$elemMatch": 
+        { "tag": "age_at_extraction", "value": { "$gte": request.form.get('ageStart'), "$lt": request.form.get('ageEnd')},
+         "tag": "anatomical_site", "value": requestAnatomical}}})))
+    else:
+        # No age
+        dbSamples.append(list(db.sample.find({"biologicalBeing.alias": requestBiological, 'biologicalBeing.attributes.attribute.value': requestSex})))
+        dbSamples.append(list(db.sample.find({"specimen.attributes.attribute.value": requestAnatomical})))
+
+    return dbSamples
+def getImages(dbSamples):
+    images= []
+    for sample in dbSamples:
+        print('\x1b[6;30;42m' + str(sample) + '\x1b[0m')
+        keys = sample[0].keys()
+        for key in keys:
+            if(key == "biologicalBeing"):
+                images.append(getImageByBiologicalBeing(sample[0].get("biologicalBeing")))
+            elif (key == "specimen"):
+                images.append(getImageBySpecimen(sample[0].get("specimen")))
+    return images
+
+def getImageByBiologicalBeing(biologicalBeing):
+
+    specimenOfBiologicalBeing = list(db.sample.find({"specimen.extractedFrom.refname": biologicalBeing.get("alias")}))
+
+    blockOfSpecimen =  list(db.sample.find({'block.sampledFrom.refname': specimenOfBiologicalBeing[0].get("specimen").get("alias")}))
+
+    slideOfBlock = list(db.sample.find({'slide.createdFrom.refname': blockOfSpecimen[0].get("block").get("alias")}))
+
+    return list(db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")}))
+
+def getImageBySpecimen(specimen):
+    blockOfSpecimen =  list(db.sample.find({'block.sampledFrom.refname': specimen.get("alias")}))
+
+    slideOfBlock = list(db.sample.find({'slide.createdFrom.refname': blockOfSpecimen[0].get("block").get("alias")}))
+
+    return list(db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")}))
+
+    
 if __name__ == "__main__":
     application.config.from_prefixed_env()
     application.config["APP_PORT"]
