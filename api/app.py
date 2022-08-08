@@ -62,17 +62,24 @@ def getItem():
     samples = []
     print()
     for sample in dbSamples:
-        #sampleData = {"id": str(sample["_id"])}
         samples.append(json.loads(json.dumps(sample, default=str)))
-
-    
-
+        
     data = [] 
     data.append({"datasets": datasets})   
     data.append({"images": images})
     data.append({"samples": samples})
     return jsonify(status=True, data=data)
 
+@application.route("/getSearchTerms")
+def getSearchTerms():
+    searchTerms = []
+    anatomicalSite = []
+    biologicalBeing = []
+    anatomicalSite.append(list(db.sample.find({"specimen.attributes.attribute.tag": "anatomical_site"},{"specimen.attributes.attribute": 1, "_id": 0})))
+    biologicalBeing.append(list(db.sample.find({"biologicalBeing.attributes.attribute.tag": "animal_species"}, {"biologicalBeing": 1, "_id": 0})))
+    searchTerms.append({"anatomicalSite": anatomicalSite})
+    searchTerms.append({"biologicalBeing": biologicalBeing})
+    return jsonify(results=str(searchTerms)), 201
 
 @application.route("/query", methods=["POST"])
 def searchQueary():
