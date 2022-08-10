@@ -82,7 +82,7 @@ def getSearchTerms():
     biologicalBeing.append(list(db.sample.find({"biologicalBeing.attributes.attribute.tag": "animal_species"}, {"biologicalBeing": 1, "_id": 0})))
     searchTerms.append({"anatomicalSite": anatomicalSite})
     searchTerms.append({"biologicalBeing": biologicalBeing})
-    return jsonify(results=str(searchTerms)), 201
+    return jsonify(results=searchTerms), 201
 
 @application.route("/query", methods=["POST"])
 def searchQueary():
