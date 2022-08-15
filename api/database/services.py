@@ -3,19 +3,6 @@ from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
 import json
 
-application = Flask(__name__)
-application.config["MONGO_URI"] = ("mongodb://"
-    + os.environ["MONGO_INITDB_ROOT_USERNAME"]
-    + ":"
-    + os.environ["MONGO_INITDB_ROOT_PASSWORD"]
-    + "@"
-    + "localhost"
-    + ":27017/"
-    + "beacondb?authSource=admin")
-
-mongo = PyMongo(application)
-db = mongo.db
-
 def index():
     """Display beacon info."""
     beacon_info = {
@@ -38,7 +25,7 @@ def index():
     }
     return jsonify(beacon_info)
 
-def getItems():
+def getItems(db):
     """List all db items."""
     dbImages = db.images.find()
     dbDataset = db.dataset.find()
@@ -67,7 +54,7 @@ def getItems():
     data.append({"samples": samples})
     return jsonify(status=True, data=data)
 
-def getSearchTerms():
+def getSearchTerms(db):
     """Gets all search terms"""
     searchTerms = []
     anatomicalSite = []
@@ -78,16 +65,16 @@ def getSearchTerms():
     searchTerms.append({"biologicalBeing": biologicalBeing})
     return jsonify(results=searchTerms), 201
 
-def searchQueary():
+def searchQueary(db):
     """Search query."""
     # Get sample info  
-    dbSamples = getSamples(request)
+    dbSamples = getSamples(request, db)
     if not dbSamples:
         return jsonify(error="No results found.")
-    images = getImages(dbSamples)
+    images = getImages(dbSamples, db)
     return jsonify(results=str(images)), 201
 
-def getSamples(request):
+def getSamples(request, db):
     dbSamples = []
     requestBiological = request.get_json().get('biologicalBeing')
     requestAnatomical = request.get_json().get('anatomicalSite')
@@ -114,18 +101,18 @@ def getSamples(request):
 
     return dbSamples
 
-def getImages(dbSamples):
+def getImages(dbSamples, db):
     images= []
     for sample in dbSamples:
         keys = sample[0].keys()
         for key in keys:
             if(key == "biologicalBeing"):
-                images.append(getImageByBiologicalBeing(sample[0].get("biologicalBeing")))
+                images.append(getImageByBiologicalBeing(sample[0].get("biologicalBeing"), db))
             elif (key == "specimen"):
-                images.append(getImageBySpecimen(sample[0].get("specimen")))
+                images.append(getImageBySpecimen(sample[0].get("specimen"), db))
     return images
 
-def getImageByBiologicalBeing(biologicalBeing):
+def getImageByBiologicalBeing(biologicalBeing, db):
 
     specimenOfBiologicalBeing = list(db.sample.find({"specimen.extractedFrom.refname": biologicalBeing.get("alias")}))
 
@@ -135,7 +122,7 @@ def getImageByBiologicalBeing(biologicalBeing):
 
     return list(db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")}))
 
-def getImageBySpecimen(specimen):
+def getImageBySpecimen(specimen, db):
     blockOfSpecimen =  list(db.sample.find({'block.sampledFrom.refname': specimen.get("alias")}))
 
     slideOfBlock = list(db.sample.find({'slide.createdFrom.refname': blockOfSpecimen[0].get("block").get("alias")}))

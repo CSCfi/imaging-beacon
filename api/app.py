@@ -25,21 +25,21 @@ from database.services import index, getItems, getSearchTerms, searchQueary
 @application.route("/")
 @application.route("/service-info")
 def index():
-    index
+    index(db)
 
 
 @application.route("/db")
 def getItem():
-    getItems
+    getItems(db)
 
 @application.route("/getSearchTerms")
 def getSearchTerms():
-   getSearchTerms
+   getSearchTerms(db)
 
 @application.route("/query", methods=["POST"])
 def searchQueary():
     """Search query.""" 
-    searchQueary(request)
+    searchQueary(request, db)
     
 if __name__ == "__main__":
     application.config.from_prefixed_env()
