@@ -24,8 +24,10 @@ def index():
     beacon_info = {
         "id": ".".join(reversed(request.host.split("."))),
         "name": "Imaging beacon",
-        "type": "",
-        "description": "",
+        "type": {'group': f'{"test"}',
+                    'artifact': f'{"placeHolder"}',
+                    'version': f'{"0.0.0"}'},
+        "description": "bp test beacon",
         "organization": {
             "name": "",
             "url": "",
