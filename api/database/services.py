@@ -9,7 +9,7 @@ def index():
         "id": ".".join(reversed(request.host.split("."))),
         "name": "Imaging beacon",
         "type": {'group': f'{"test"}',
-                    'artifact': f'{"placeHolder"}',
+                    'artifact': f'{"beacon"}',
                     'version': f'{"0.0.0"}'},
         "description": "bp test beacon",
         "organization": {
@@ -23,7 +23,7 @@ def index():
         "environment": "",
         "version": "",
     }
-    return jsonify(beacon_info)
+    return beacon_info
 
 def getItems(db):
     """List all db items."""
@@ -52,7 +52,7 @@ def getItems(db):
     data.append({"datasets": datasets})   
     data.append({"images": images})
     data.append({"samples": samples})
-    return jsonify(status=True, data=data)
+    return data
 
 def getSearchTerms(db):
     """Gets all search terms"""
@@ -63,16 +63,17 @@ def getSearchTerms(db):
     biologicalBeing.append(list(db.sample.find({"biologicalBeing.attributes.attribute.tag": "animal_species"}, {"biologicalBeing": 1, "_id": 0})))
     searchTerms.append({"anatomicalSite": anatomicalSite})
     searchTerms.append({"biologicalBeing": biologicalBeing})
-    return jsonify(results=searchTerms), 201
+    return searchTerms
 
-def searchQueary(db):
+def searchQuery(request, db):
     """Search query."""
     # Get sample info  
     dbSamples = getSamples(request, db)
     if not dbSamples:
         return jsonify(error="No results found.")
     images = getImages(dbSamples, db)
-    return jsonify(results=str(images)), 201
+    print('\x1b[6;30;42m' + str(images) + '\x1b[0m')
+    return images
 
 def getSamples(request, db):
     dbSamples = []
