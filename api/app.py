@@ -19,7 +19,6 @@ application.config["MONGO_URI"] = (
 mongo = PyMongo(application)
 db = mongo.db
 
-
 from database.services import index, getItems, getSearchTerms, searchQuery
 
 @application.route("/")
@@ -30,17 +29,17 @@ def root():
 
 @application.route("/db")
 def getItem():
-    return jsonify(status=True, data=getItems(db))
+    return jsonify(response=getItems(db)), 200
 
 @application.route("/getSearchTerms")
 def getSearchTerms():
-   return jsonify(results=getSearchTerms(db)), 201
+   return jsonify(response=getSearchTerms(db)), 200
 
 @application.route("/query", methods=["POST"])
 def query():
     """Search query.""" 
     result = searchQuery(request, db)
-    return jsonify(results=str(result)), 200
+    return jsonify(response=str(result)), 200
     
 if __name__ == "__main__":
     application.config.from_prefixed_env()
