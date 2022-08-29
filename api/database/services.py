@@ -79,31 +79,28 @@ def getSamples(request, db):
     requestAge = request.get_json().get('age')
     if(request.get_json().get("ageOption") == "<"):
         # Age less than
-        dbSamples.append(list(db.sample.find({
-        "specimen.attributes.attribute.tag": "age_at_extraction",
-        "specimen.attributes.attribute.value": {"$lt": int(requestAge)},
-        "specimen.attributes.attribute.value": requestAnatomical})))
-
+        dbSamples.append(list(db.sample.find({ "$and": [
+        {"specimen.attributes.attribute.tag": "age_at_extraction"},
+        {"specimen.attributes.attribute.value": {"$lt": int(requestAge)}},
+        {"specimen.attributes.attribute.value": requestAnatomical}]})))
     elif(request.get_json().get("ageOption") == ">"):
         # Age more than
-
-        dbSamples.append(list(db.sample.find({
-        "specimen.attributes.attribute.tag": "age_at_extraction",
-        "specimen.attributes.attribute.value": {"$gt": int(requestAge)},
-        "specimen.attributes.attribute.value": requestAnatomical})))
-
+        dbSamples.append(list(db.sample.find({ "$and": [
+        {"specimen.attributes.attribute.tag": "age_at_extraction"},
+        {"specimen.attributes.attribute.value": {"$gt": int(requestAge)}},
+        {"specimen.attributes.attribute.value": requestAnatomical}]})))
         ## "$and": [{"specimen.attributes.attribute.tag": "age_at_extraction"}, {"$expr":{ "$gt": [{ "$toInt": "$value" }, 59]}}]
     elif(request.get_json().get("ageOption") == "-"):
         # Ages between
-        dbSamples.append(list(db.sample.find({'specimen.attributes.attribute': {"$elemMatch": 
-        { "tag": "age_at_extraction", "value": { "$gte": request.form.get('ageStart'), "$lt": request.form.get('ageEnd')},
-         "tag": "anatomical_site", "value": requestAnatomical}}})))
-    elif(requestBiological != ""):
-        # No age
-        dbSamples.append(list(db.sample.find({"biologicalBeing.attributes.attribute.value": requestBiological, 'biologicalBeing.attributes.attribute.value': requestSex})))
-    else:
-        dbSamples.append(list(db.sample.find({"specimen.attributes.attribute.value": requestAnatomical})))
+        dbSamples.append(list(db.sample.find({ "$and": [
+        {"specimen.attributes.attribute.tag": "age_at_extraction"},
+        {"specimen.attributes.attribute.value": {"$gt": int(request.get_json().get('ageStart')), "$lt": int(request.get_json().get('ageEnd'))}},
+        {"specimen.attributes.attribute.value": requestAnatomical}]})))
 
+    elif(requestBiological != ""):
+        dbSamples.append(list(db.sample.find({"biologicalBeing.attributes.attribute.value": requestBiological, 'biologicalBeing.attributes.attribute.value': requestSex})))
+    elif(requestAge != ""):
+        dbSamples.append(list(db.sample.find({"specimen.attributes.attribute.value": requestAnatomical})))
     return dbSamples
 
 def getImages(dbSamples, db):
