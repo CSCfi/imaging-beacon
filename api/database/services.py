@@ -57,12 +57,8 @@ def getItems(db):
 def getSearchTerms(db):
     """Gets all search terms"""
     searchTerms = []
-    anatomicalSite = []
-    biologicalBeing = []
-    anatomicalSite.append(list(db.sample.find({"specimen.attributes.attribute.tag": "anatomical_site"},{"specimen.attributes.attribute": 1, "_id": 0})))
-    biologicalBeing.append(list(db.sample.find({"biologicalBeing.attributes.attribute.tag": "animal_species"}, {"biologicalBeing": 1, "_id": 0})))
-    searchTerms.append({"anatomicalSite": anatomicalSite})
-    searchTerms.append({"biologicalBeing": biologicalBeing})
+    searchTerms.append({"anatomicalSite": list(db.sample.find({"specimen.attributes.attribute.tag": "anatomical_site"},{"specimen.attributes.attribute": 1, "_id": 0}))})
+    searchTerms.append({"biologicalBeing": list(db.sample.find({"biologicalBeing.attributes.attribute.tag": "animal_species"}, {"biologicalBeing": 1, "_id": 0}))})
     return searchTerms
 
 def searchQuery(request, db):
@@ -72,8 +68,8 @@ def searchQuery(request, db):
     if not dbSamples:
         return jsonify(error="No results found.")
     images = getImages(dbSamples, db)
-    print('\x1b[6;30;42m' + str(images) + '\x1b[0m')
-    return images
+
+    return response(images)
 
 def getSamples(request, db):
     dbSamples = []
@@ -81,28 +77,37 @@ def getSamples(request, db):
     requestAnatomical = request.get_json().get('anatomicalSite')
     requestSex = request.get_json().get('sex')
     requestAge = request.get_json().get('age')
-    if(request.get_json().get("ageCondition") == "<"):
+    if(request.get_json().get("ageOption") == "<"):
         # Age less than
-        dbSamples.append(list(db.sample.find({'specimen.attributes.attribute': {"$elemMatch": 
-        { "tag": "age_at_extraction", "value": { "$lt": requestAge}, "tag": "anatomical_site", "value": requestAnatomical}}})))
+        dbSamples.append(list(db.sample.find({
+        "specimen.attributes.attribute.tag": "age_at_extraction",
+        "specimen.attributes.attribute.value": {"$lt": int(requestAge)},
+        "specimen.attributes.attribute.value": requestAnatomical})))
 
-    elif(request.get_json().get("ageCondition") == ">"):
+    elif(request.get_json().get("ageOption") == ">"):
         # Age more than
-        dbSamples.append(list(db.sample.find({'specimen.attributes.attribute': {"$elemMatch": 
-        { "tag": "age_at_extraction", "value": { "$gt": requestAge}, "tag": "anatomical_site", "value": requestAnatomical}}})))
-    elif(request.get_json().get("ageCondition") == "-"):
-        # Ages between       
+
+        dbSamples.append(list(db.sample.find({
+        "specimen.attributes.attribute.tag": "age_at_extraction",
+        "specimen.attributes.attribute.value": {"$gt": int(requestAge)},
+        "specimen.attributes.attribute.value": requestAnatomical})))
+
+        ## "$and": [{"specimen.attributes.attribute.tag": "age_at_extraction"}, {"$expr":{ "$gt": [{ "$toInt": "$value" }, 59]}}]
+    elif(request.get_json().get("ageOption") == "-"):
+        # Ages between
         dbSamples.append(list(db.sample.find({'specimen.attributes.attribute': {"$elemMatch": 
         { "tag": "age_at_extraction", "value": { "$gte": request.form.get('ageStart'), "$lt": request.form.get('ageEnd')},
          "tag": "anatomical_site", "value": requestAnatomical}}})))
-    else:
+    elif(requestBiological != ""):
         # No age
-        dbSamples.append(list(db.sample.find({"biologicalBeing.alias": requestBiological, 'biologicalBeing.attributes.attribute.value': requestSex})))
+        dbSamples.append(list(db.sample.find({"biologicalBeing.attributes.attribute.value": requestBiological, 'biologicalBeing.attributes.attribute.value': requestSex})))
+    else:
         dbSamples.append(list(db.sample.find({"specimen.attributes.attribute.value": requestAnatomical})))
 
     return dbSamples
 
 def getImages(dbSamples, db):
+    ## tästä tulee dublicate
     images= []
     for sample in dbSamples:
         keys = sample[0].keys()
@@ -115,17 +120,28 @@ def getImages(dbSamples, db):
 
 def getImageByBiologicalBeing(biologicalBeing, db):
 
-    specimenOfBiologicalBeing = list(db.sample.find({"specimen.extractedFrom.refname": biologicalBeing.get("alias")}))
+    specimenOfBiologicalBeing = db.sample.find({"specimen.extractedFrom.refname": biologicalBeing.get("alias")})
 
-    blockOfSpecimen =  list(db.sample.find({'block.sampledFrom.refname': specimenOfBiologicalBeing[0].get("specimen").get("alias")}))
+    blockOfSpecimen =  db.sample.find({'block.sampledFrom.refname': specimenOfBiologicalBeing[0].get("specimen").get("alias")})
 
-    slideOfBlock = list(db.sample.find({'slide.createdFrom.refname': blockOfSpecimen[0].get("block").get("alias")}))
+    slideOfBlock = db.sample.find({'slide.createdFrom.refname': blockOfSpecimen[0].get("block").get("alias")})
 
-    return list(db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")}))
+    return db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")})
 
 def getImageBySpecimen(specimen, db):
-    blockOfSpecimen =  list(db.sample.find({'block.sampledFrom.refname': specimen.get("alias")}))
+    blockOfSpecimen =  db.sample.find({'block.sampledFrom.refname': specimen.get("alias")})
 
-    slideOfBlock = list(db.sample.find({'slide.createdFrom.refname': blockOfSpecimen[0].get("block").get("alias")}))
+    slideOfBlock = db.sample.find({'slide.createdFrom.refname': blockOfSpecimen[0].get("block").get("alias")})
 
-    return list(db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")}))
+    return db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")})
+
+def response(images):
+    
+    beacon_response = {
+        "beaconId": ".".join(reversed(request.host.split("."))),
+        "apiVersion": "0.0.0",
+        "exists": True,
+        "images": images
+    }
+
+    return beacon_response
