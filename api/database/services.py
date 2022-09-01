@@ -65,8 +65,8 @@ def searchQuery(request, db):
     """Search query."""
     # Get sample info  
     dbSamples = getSamples(request, db)
-    if not dbSamples:
-        return jsonify(error="No results found.")
+    if not dbSamples[0]:
+        return "No results found."
     images = getImages(dbSamples, db)
 
     return response(images)
