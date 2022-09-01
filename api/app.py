@@ -40,7 +40,8 @@ def returnearchTerms():
 def query():
     """Search query.""" 
     result = searchQuery(request, db)
-    
+    if result == "No results found.":
+        return json.loads(json_util.dumps(result)), 400
     return json.loads(json_util.dumps(result)), 200
     
 if __name__ == "__main__":
