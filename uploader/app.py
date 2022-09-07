@@ -15,10 +15,15 @@ client = pymongo.MongoClient(
 )
 
 db = client["beacondb"]
-collection = db["imagedb"]
+
 
 
 def populate():
+    if sys.argv[2] != "":
+        collection = db[sys.argv[2]]
+    else:
+        collection = db["dataset"]
+
     with open(sys.argv[1]) as file:
         file_data = json.load(file)
 
