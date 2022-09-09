@@ -31,8 +31,8 @@ def getItems(db):
     dbDataset = db.dataset.find()
     dbSamples = list(db.sample.find())
     datasets = []
-    for set in dbDataset:
-        setdata = {"id": str(set["_id"]), "alias": set["alias"], "attributes": set["attributes"], "title": set["title"], "description": set["description"], "datasetType": set["datasetType"], "policyRef": set["policyRef"], "imageRef": ["imageRef"]}
+    for ds in dbDataset:
+        setdata = {"id": str(ds["_id"]), "alias": ds["alias"], "attributes": ds["attributes"], "title": ds["title"], "description": ds["description"], "datasetType": ds["datasetType"], "policyRef": ds["policyRef"], "imageRef": ["imageRef"]}
         datasets.append(setdata)
 
     images = []
