@@ -86,7 +86,6 @@ def getSamples(request, db):
         {"specimen.attributes.attribute.tag": "age_at_extraction"},
         {"specimen.attributes.attribute.value": {"$gt": int(requestAge)}},
         {"specimen.attributes.attribute.value": requestAnatomical}]})))
-        ## "$and": [{"specimen.attributes.attribute.tag": "age_at_extraction"}, {"$expr":{ "$gt": [{ "$toInt": "$value" }, 59]}}]
     elif(request.get_json().get("ageOption") == "-"):
         # Ages between
         dbSamples.append(list(db.sample.find({ "$and": [
