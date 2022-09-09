@@ -30,8 +30,6 @@ def getItems(db):
     dbImages = db.images.find()
     dbDataset = db.dataset.find()
     dbSamples = list(db.sample.find())
-    for coll in db.list_collection_names():
-        print(coll)
     datasets = []
     for set in dbDataset:
         setdata = {"id": str(set["_id"]), "alias": set["alias"], "attributes": set["attributes"], "title": set["title"], "description": set["description"], "datasetType": set["datasetType"], "policyRef": set["policyRef"], "imageRef": ["imageRef"]}
