@@ -43,7 +43,7 @@ def getItems(db):
 
     samples = []
     for sample in dbSamples:
-        samples.append(json.loads(json.dumps(sample, default=str)))
+        samples.append(sample)
         
     data = [] 
     data.append({"datasets": datasets})   
