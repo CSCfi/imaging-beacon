@@ -42,7 +42,6 @@ def getItems(db):
         images.append(image)
 
     samples = []
-    print()
     for sample in dbSamples:
         samples.append(json.loads(json.dumps(sample, default=str)))
         
