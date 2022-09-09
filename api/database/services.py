@@ -8,9 +8,9 @@ def index():
     beacon_info = {
         "id": ".".join(reversed(request.host.split("."))),
         "name": "Imaging beacon",
-        "type": {'group': f'{"test"}',
-                    'artifact': f'{"beacon"}',
-                    'version': f'{"0.0.0"}'},
+        "type": {'group': "test",
+                    'artifact': "beacon",
+                    'version': "0.0.0"},
         "description": "bp test beacon",
         "organization": {
             "name": "",
