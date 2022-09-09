@@ -1,67 +1,46 @@
 import os
 from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
+import json
+import bson.json_util as json_util
 
 application = Flask(__name__)
-application.config["MONGO_URI"] = (
-    "mongodb://"
-    + os.environ["MONGODB_USERNAME"]
+application.config["MONGO_URI"] = ("mongodb://"
+    + os.environ["MONGO_INITDB_ROOT_USERNAME"]
     + ":"
-    + os.environ["MONGODB_PASSWORD"]
+    + os.environ["MONGO_INITDB_ROOT_PASSWORD"]
     + "@"
-    + os.environ["MONGODB_HOSTNAME"]
+    + "localhost"
     + ":27017/"
-    + os.environ["MONGODB_DATABASE"]
-    + "?authSource=admin"
-)
+    + "beacondb?authSource=admin")
 
 mongo = PyMongo(application)
 db = mongo.db
 
+from database.services import index, getItems, getSearchTerms, searchQuery
 
 @application.route("/")
 @application.route("/service-info")
-def index():
-    """Display beacon info."""
-    beacon_info = {
-        "id": ".".join(reversed(request.host.split("."))),
-        "name": "Imaging beacon",
-        "type": "",
-        "description": "",
-        "organization": {
-            "name": "",
-            "url": "",
-        },
-        "contactUrl": "",
-        "documentationUrl": "",
-        "createdAt": "",
-        "updatedAt": "",
-        "environment": "",
-        "version": "",
-    }
-    return jsonify(beacon_info)
+def root():
+    return jsonify(index())
 
 
 @application.route("/db")
 def getItem():
-    """List all db items."""
-    _db = db.todo.find()
+    return jsonify(response=getItems(db)), 200
 
-    item = {}
-    data = []
-    for i in _db:
-        item = {"id": str(i["_id"]), "item": i["todo"]}
-        data.append(item)
-
-    return jsonify(status=True, data=data)
-
+@application.route("/getSearchTerms")
+def returnearchTerms():
+   return jsonify(response=getSearchTerms(db)), 200
 
 @application.route("/query", methods=["POST"])
-def searchQueary():
-    """Search query."""
-    return jsonify(), 201
-
-
+def query():
+    """Search query.""" 
+    result = searchQuery(request, db)
+    if result == "No results found.":
+        return json.loads(json_util.dumps(result)), 400
+    return json.loads(json_util.dumps(result)), 200
+    
 if __name__ == "__main__":
     application.config.from_prefixed_env()
     application.config["APP_PORT"]
