@@ -5,17 +5,14 @@ import json
 import bson.json_util as json_util
 
 application = Flask(__name__)
-application.config["MONGO_URI"] = (
-    "mongodb://"
-    + os.environ["MONGODB_USERNAME"]
+application.config["MONGO_URI"] = ("mongodb://"
+    + os.environ["MONGO_INITDB_ROOT_USERNAME"]
     + ":"
-    + os.environ["MONGODB_PASSWORD"]
+    + os.environ["MONGO_INITDB_ROOT_PASSWORD"]
     + "@"
-    + os.environ["MONGODB_HOSTNAME"]
+    + "localhost"
     + ":27017/"
-    + os.environ["MONGODB_DATABASE"]
-    + "?authSource=admin"
-)
+    + "beacondb?authSource=admin")
 
 mongo = PyMongo(application)
 db = mongo.db
