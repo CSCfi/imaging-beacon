@@ -7,3 +7,4 @@ env/
 *.py[cod]
 *$py.class
 *.json
+.DS_Store
