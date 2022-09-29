@@ -18,6 +18,7 @@ db = client["beacondb"]
 
 
 def populate():
+    """Populate database function."""
     if sys.argv[2] != "":
         collection = db[sys.argv[2]]
     else:
