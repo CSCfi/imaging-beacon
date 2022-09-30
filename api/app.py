@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
 import json
 import bson.json_util as json_util
-from database.services import index, getItems, getSearchTerms, searchQuery
+from .database.services import index, getItems, getSearchTerms, searchQuery
 
 application = Flask(__name__)
 application.config["MONGO_URI"] = (
