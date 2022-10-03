@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
 import json
 import bson.json_util as json_util
-from .database.services import index, getItems, getSearchTerms, searchQuery
+from database.services import index, getSearchTerms, searchQuery
 
 application = Flask(__name__)
 application.config["MONGO_URI"] = (
@@ -26,12 +26,6 @@ db = mongo.db
 def root():
     """Return service info."""
     return jsonify(index())
-
-
-@application.route("/db")
-def getItem():
-    """Return db items."""
-    return jsonify(response=getItems(db)), 200
 
 
 @application.route("/getSearchTerms")
