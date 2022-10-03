@@ -55,8 +55,8 @@ def searchQuery(request, db):
     if not dbSamples[0]:
         return "No results found."
     images = __getImages(dbSamples, db)
-    print('\x1b[6;30;42m' + str(len(images)) + '\x1b[0m')
-    return __response(images)
+    
+    return __response(len(images))
 
 
 def __getSamples(request, db):
