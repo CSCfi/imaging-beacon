@@ -22,50 +22,6 @@ def index():
     return beacon_info
 
 
-def getItems(db):
-    """List all db items."""
-    dbImages = db.images.find()
-    dbDataset = db.dataset.find()
-    dbSamples = list(db.sample.find())
-    datasets = []
-    for ds in dbDataset:
-        setdata = {
-            "id": str(ds["_id"]),
-            "alias": ds["alias"],
-            "attributes": ds["attributes"],
-            "title": ds["title"],
-            "description": ds["description"],
-            "datasetType": ds["datasetType"],
-            "policyRef": ds["policyRef"],
-            "imageRef": ["imageRef"],
-        }
-        datasets.append(setdata)
-
-    images = []
-
-    for i in dbImages:
-        image = {
-            "id": str(i["_id"]),
-            "alias": i["alias"],
-            "attributes": i["attributes"],
-            "studyRef": i["studyRef"],
-            "imageOf": i["imageOf"],
-            "imageType": i["imageType"],
-            "files": i["files"],
-        }
-        images.append(image)
-
-    samples = []
-    for sample in dbSamples:
-        samples.append(sample)
-
-    data = []
-    data.append({"datasets": datasets})
-    data.append({"images": images})
-    data.append({"samples": samples})
-    return data
-
-
 def getSearchTerms(db):
     """Get all search terms."""
     searchTerms = []
@@ -99,8 +55,8 @@ def searchQuery(request, db):
     if not dbSamples[0]:
         return "No results found."
     images = __getImages(dbSamples, db)
-
-    return __response(images)
+    
+    return __response(len(images))
 
 
 def __getSamples(request, db):
