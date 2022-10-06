@@ -8,7 +8,7 @@ import bson.json_util as json_util
 import uvloop
 import asyncio
 import ujson
-from database.services import index, getSearchTerms, searchQuery
+from .database.services import index, getSearchTerms, searchQuery
 
 routes = web.RouteTableDef()
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
