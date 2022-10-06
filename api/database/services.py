@@ -59,7 +59,6 @@ async def searchQuery(request, db):
     dbSamples = __getSamples(req, db)
     if not dbSamples[0]:
         return "No results found."
-    print('\x1b[6;30;42m' + str(dbSamples[0]) + '\x1b[0m')
     images = __getImages(dbSamples[0], db)
     
     return __response(req,len(images))
@@ -104,7 +103,6 @@ def __getSamples(request, db):
             )
         )
     elif request.get("ageOption") == "-":
-        print('\x1b[6;30;42m' + str(request.get("ageStart")) + '\x1b[0m')
         # Ages between
         dbSamples.append(
             list(
@@ -138,22 +136,18 @@ def __getSamples(request, db):
         )
     elif requestAge != "":
         dbSamples.append(list(db.sample.find({"specimen.attributes.attribute.value": requestAnatomical})))
-    print('\x1b[6;30;42m' + str(dbSamples) + '\x1b[0m')
     return dbSamples
 
 
 def __getImages(dbSamples, db):
 
     images = []
-    print('\x1b[6;30;42m' + str(dbSamples) + '\x1b[0m')
     for sample in dbSamples:
         keys = sample.keys()
-        print('\x1b[6;30;42m' + str(sample.keys()) + '\x1b[0m')
         for key in keys:
             if key == "biologicalBeing":
                 images.append(__getImageByBiologicalBeing(sample.get("biologicalBeing"), db))
             elif key == "specimen":
-                print('\x1b[6;30;42m' + str(images) + '\x1b[0m')
                 images.append(__getImageBySpecimen(sample.get("specimen"), db))
                 
     return images

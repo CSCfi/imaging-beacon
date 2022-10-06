@@ -81,8 +81,6 @@ async def init() -> web.Application:
     """Initialise server."""
     beacon = web.Application()
     beacon.router.add_routes(routes)
-    beacon.on_startup.append(initialize)
-    beacon.on_cleanup.append(destroy)
     return beacon
 
 def main():
@@ -93,8 +91,7 @@ def main():
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     # sslcontext.check_hostname = False
-    app = web.Application() 
-    app.router.add_routes(routes)
+    app = init()
    
     web.run_app(
         app,
