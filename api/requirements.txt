@@ -1,0 +1,13 @@
+aiohttp==3.8.3
+aiohttp-cors==0.7.0
+aiosignal==1.2.0
+async-timeout==4.0.2
+attrs==22.1.0
+charset-normalizer==2.1.1
+frozenlist==1.3.1
+idna==3.4
+multidict==6.0.2
+pymongo==4.2.0
+ujson==5.5.0
+uvloop==0.17.0
+yarl==1.8.1
