@@ -1,12 +1,18 @@
+from aiohttp import web
 import os
-from flask import Flask, request, jsonify
-from flask_pymongo import PyMongo
+import sys
+import aiohttp_cors
+import pymongo
 import json
 import bson.json_util as json_util
-from .database.services import index, getSearchTerms, searchQuery
+import uvloop
+import asyncio
+import ujson
+from database.services import index, getSearchTerms, searchQuery
 
-application = Flask(__name__)
-application.config["MONGO_URI"] = (
+routes = web.RouteTableDef()
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+db =  pymongo.MongoClient(
     "mongodb://"
     + os.environ["MONGO_INITDB_ROOT_USERNAME"]
     + ":"
@@ -15,36 +21,93 @@ application.config["MONGO_URI"] = (
     + "localhost"
     + ":27017/"
     + "beacondb?authSource=admin"
-)
-
-mongo = PyMongo(application)
-db = mongo.db
-
-
-@application.route("/")
-@application.route("/service-info")
-def root():
+    )
+@routes.get("/")  # For Beacon API Specification
+@routes.get("/service-info") 
+async def beacon_get(request: web.Request) -> web.Response:
     """Return service info."""
-    return jsonify(index())
+    response = await index(request.host)
+    return web.json_response(response)
 
 
-@application.route("/getSearchTerms")
-def returnearchTerms():
+@routes.get("/getSearchTerms")
+async def returnearchTerms(request: web.Request) -> web.Response:
     """Return db search terms."""
-    return jsonify(response=getSearchTerms(db)), 200
+    response = getSearchTerms(db)
+    return web.json_response(response, content_type="application/json", dumps=ujson.dumps)
 
 
-@application.route("/query", methods=["POST"])
-def query():
+@routes.post("/query")
+async def query(request: web.Request) -> web.Response:
     """Search query."""
-    result = searchQuery(request, db)
+   
+    result = await searchQuery(request, db)
     if result == "No results found.":
-        return json.loads(json_util.dumps(result)), 400
-    return json.loads(json_util.dumps(result)), 200
+        return web.json_response(result, content_type="application/json", dumps=ujson.dumps)
+    return web.json_response(result, content_type="application/json", dumps=ujson.dumps)
+
+def set_cors(server):
+    """Set CORS rules."""
+    # Configure CORS settings
+    cors = aiohttp_cors.setup(
+        server,
+        defaults={
+            "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+                allow_methods=["GET", "POST", "OPTIONS"],
+                max_age=86400,
+            )
+        },
+    )
+    # Apply CORS to endpoints
+    for route in list(server.router.routes()):
+        cors.add(route)
+
+async def destroy(app: web.Application) -> None:
+    """Upon server close, close the DB connection pool."""
+    # will defer this to asyncpg
+    await app["pool"].close()  # pragma: no cover
+
+async def initialize(app: web.Application) -> None:
+    """Spin up DB a connection pool with the HTTP server."""
+    
+    app["pool"] 
+    
+    set_cors(app)
+
+async def init() -> web.Application:
+    """Initialise server."""
+    beacon = web.Application()
+    beacon.router.add_routes(routes)
+    beacon.on_startup.append(initialize)
+    beacon.on_cleanup.append(destroy)
+    return beacon
+
+def main():
+    """Run the beacon API.
+    At start also initialize a PostgreSQL connection pool.
+    """
+    # TO DO make it HTTPS and request certificate
+    # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
+    # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    # sslcontext.check_hostname = False
+    app = web.Application() 
+    app.router.add_routes(routes)
+   
+    web.run_app(
+        app,
+        host=os.environ.get("HOST", "0.0.0.0"),  # nosec
+        port=os.environ.get("PORT", "5000"),
+        shutdown_timeout=0,
+        ssl_context=None,
+    )
 
 
 if __name__ == "__main__":
-    application.config.from_prefixed_env()
-    application.config["APP_PORT"]
-    application.config["APP_DEBUG"]
-    application.run()
+    if sys.version_info < (3, 8):
+        LOG.error("beacon-python requires python 3.8")
+        sys.exit(1)
+    main()
+
