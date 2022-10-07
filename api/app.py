@@ -14,9 +14,9 @@ routes = web.RouteTableDef()
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 db =  pymongo.MongoClient(
     "mongodb://"
-    + os.environ["MONGO_INITDB_ROOT_USERNAME"]
+    + os.environ["DB_USERNAME"]
     + ":"
-    + os.environ["MONGO_INITDB_ROOT_PASSWORD"]
+    + os.environ["DB_PASSWORD"]
     + "@"
     + os.environ["DB_HOST"]
     + ":27017/"
