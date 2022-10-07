@@ -1,3 +1,4 @@
+import os
 from typing import Dict, Tuple, List, Optional
 
 async def index(params: Tuple) -> Dict:
@@ -24,7 +25,7 @@ async def index(params: Tuple) -> Dict:
 
 def getSearchTerms(db):
     """Get all search terms."""
-    db = db["beacondb"]
+    db = db[os.environ["DB_NAME"]]
     searchTerms = []
     searchTerms.append(
         {
@@ -55,7 +56,7 @@ async def searchQuery(request, db):
     req = await request.json()
     # Get sample info
 
-    db = db["beacondb"]
+    db = db[os.environ["DB_NAME"]]
     dbSamples = __getSamples(req, db)
     if not dbSamples[0]:
         return "No results found."

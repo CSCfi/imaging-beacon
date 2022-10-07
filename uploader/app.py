@@ -14,7 +14,7 @@ client = pymongo.MongoClient(
     + os.environ["DB_NAME"]+ "?authSource=admin"
 )
 
-db = client["beacondb"]
+db = client[os.environ["DB_NAME"]]
 
 
 def populate():
