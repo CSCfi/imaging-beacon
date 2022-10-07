@@ -9,9 +9,9 @@ client = pymongo.MongoClient(
     + ":"
     + os.environ["MONGO_INITDB_ROOT_PASSWORD"]
     + "@"
-    + "localhost"
+    + os.environ["HOST"]
     + ":27017/"
-    + "mongodb?authSource=admin"
+    + os.environ["DB_NAME"]+ "?authSource=admin"
 )
 
 db = client["beacondb"]

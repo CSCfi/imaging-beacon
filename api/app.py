@@ -18,9 +18,9 @@ db =  pymongo.MongoClient(
     + ":"
     + os.environ["MONGO_INITDB_ROOT_PASSWORD"]
     + "@"
-    + "localhost"
+    + os.environ["HOST"]
     + ":27017/"
-    + "beacondb?authSource=admin"
+    + os.environ["DB_NAME"]+"?authSource=admin"
     )
 @routes.get("/")  # For Beacon API Specification
 @routes.get("/service-info") 
