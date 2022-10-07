@@ -96,7 +96,7 @@ def main():
     web.run_app(
         app,
         host=os.environ.get("HOST", "0.0.0.0"),  # nosec
-        port=os.environ.get("PORT", "5000"),
+        port=os.environ.get("PORT", "8080"),
         shutdown_timeout=0,
         ssl_context=None,
     )
