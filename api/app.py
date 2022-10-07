@@ -18,7 +18,7 @@ db =  pymongo.MongoClient(
     + ":"
     + os.environ["MONGO_INITDB_ROOT_PASSWORD"]
     + "@"
-    + os.environ["HOST"]
+    + os.environ["DB_HOST"]
     + ":27017/"
     + os.environ["DB_NAME"]+"?authSource=admin"
     )
