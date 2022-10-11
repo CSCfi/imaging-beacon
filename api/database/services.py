@@ -1,11 +1,11 @@
 import os
 from typing import Dict, Tuple, List, Optional
 
-async def index(params: Tuple) -> Dict:
+async def index(host: str) -> Dict:
     """Display beacon info."""
     
     beacon_info = {
-        "id": params,
+        "id": ".".join(reversed(host.split("."))),
         "name": "Imaging beacon",
         "type": {"group": "test", "artifact": "beacon", "version": "0.0.0"},
         "description": "bp test beacon",
