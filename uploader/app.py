@@ -5,16 +5,16 @@ import os
 
 client = pymongo.MongoClient(
     "mongodb://"
-    + os.environ["MONGO_INITDB_ROOT_USERNAME"]
+    + os.environ["DB_USERNAME"]
     + ":"
-    + os.environ["MONGO_INITDB_ROOT_PASSWORD"]
+    + os.environ["DB_PASSWORD"]
     + "@"
-    + "localhost"
+    + os.environ["DB_HOST"]
     + ":27017/"
-    + "mongodb?authSource=admin"
+    + os.environ["DB_NAME"]+ "?authSource=admin"
 )
 
-db = client["beacondb"]
+db = client[os.environ["DB_NAME"]]
 
 
 def populate():

@@ -1,10 +1,11 @@
-from flask import request
+import os
+from typing import Dict, Tuple, List, Optional
 
-
-def index():
+async def index(host: str) -> Dict:
     """Display beacon info."""
+    
     beacon_info = {
-        "id": ".".join(reversed(request.host.split("."))),
+        "id": ".".join(reversed(host.split("."))),
         "name": "Imaging beacon",
         "type": {"group": "test", "artifact": "beacon", "version": "0.0.0"},
         "description": "bp test beacon",
@@ -24,6 +25,7 @@ def index():
 
 def getSearchTerms(db):
     """Get all search terms."""
+    db = db[os.environ["DB_NAME"]]
     searchTerms = []
     searchTerms.append(
         {
@@ -45,27 +47,33 @@ def getSearchTerms(db):
             )
         }
     )
+    
     return searchTerms
 
 
-def searchQuery(request, db):
+async def searchQuery(request, db):
     """Search query."""
+    req = await request.json()
     # Get sample info
-    dbSamples = __getSamples(request, db)
+
+    db = db[os.environ["DB_NAME"]]
+    dbSamples = __getSamples(req, db)
     if not dbSamples[0]:
         return "No results found."
-    images = __getImages(dbSamples, db)
+    images = __getImages(dbSamples[0], db)
     
-    return __response(len(images))
+    return __response(req,len(images))
 
 
 def __getSamples(request, db):
     dbSamples = []
-    requestBiological = request.get_json().get("biologicalBeing")
-    requestAnatomical = request.get_json().get("anatomicalSite")
-    requestSex = request.get_json().get("sex")
-    requestAge = request.get_json().get("age")
-    if request.get_json().get("ageOption") == "<":
+    requestBiological = request.get("biologicalBeing")
+    requestAnatomical = request.get("anatomicalSite")
+    requestSex = request.get("sex")
+    requestAge = request.get("age")
+    
+    
+    if request.get("ageOption") == "<":
         # Age less than
         dbSamples.append(
             list(
@@ -80,7 +88,7 @@ def __getSamples(request, db):
                 )
             )
         )
-    elif request.get_json().get("ageOption") == ">":
+    elif request.get("ageOption") == ">":
         # Age more than
         dbSamples.append(
             list(
@@ -95,7 +103,7 @@ def __getSamples(request, db):
                 )
             )
         )
-    elif request.get_json().get("ageOption") == "-":
+    elif request.get("ageOption") == "-":
         # Ages between
         dbSamples.append(
             list(
@@ -105,8 +113,8 @@ def __getSamples(request, db):
                             {"specimen.attributes.attribute.tag": "age_at_extraction"},
                             {
                                 "specimen.attributes.attribute.value": {
-                                    "$gt": int(request.get_json().get("ageStart")),
-                                    "$lt": int(request.get_json().get("ageEnd")),
+                                    "$gt": int(request.get("ageStart")),
+                                    "$lt": int(request.get("ageEnd")),
                                 }
                             },
                             {"specimen.attributes.attribute.value": requestAnatomical},
@@ -136,12 +144,13 @@ def __getImages(dbSamples, db):
 
     images = []
     for sample in dbSamples:
-        keys = sample[0].keys()
+        keys = sample.keys()
         for key in keys:
             if key == "biologicalBeing":
-                images.append(__getImageByBiologicalBeing(sample[0].get("biologicalBeing"), db))
+                images.append(__getImageByBiologicalBeing(sample.get("biologicalBeing"), db))
             elif key == "specimen":
-                images.append(__getImageBySpecimen(sample[0].get("specimen"), db))
+                images.append(__getImageBySpecimen(sample.get("specimen"), db))
+                
     return images
 
 
@@ -158,16 +167,16 @@ def __getImageByBiologicalBeing(biologicalBeing, db):
 
 def __getImageBySpecimen(specimen, db):
     blockOfSpecimen = db.sample.find({"block.sampledFrom.refname": specimen.get("alias")})
-
+  
     slideOfBlock = db.sample.find({"slide.createdFrom.refname": blockOfSpecimen[0].get("block").get("alias")})
+  
+    return list(db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")}))
 
-    return db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")})
 
-
-def __response(images):
+def __response(params, images):
 
     beacon_response = {
-        "beaconId": ".".join(reversed(request.host.split("."))),
+        "beaconId": "localhost:5000",
         "apiVersion": "0.0.0",
         "exists": True,
         "images": images,

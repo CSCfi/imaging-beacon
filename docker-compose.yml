@@ -12,7 +12,7 @@ services:
     environment:
       APP_ENV: "prod"
       APP_DEBUG: "False"
-      APP_PORT: 5000
+      APP_PORT: 8080
       MONGODB_DATABASE: flaskdb
       MONGODB_USERNAME: ${MONGODB_USERNAME}
       MONGODB_PASSWORD: ${MONGODB_PASSWORD}
