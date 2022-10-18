@@ -31,8 +31,8 @@ def getSearchTerms(db):
         {
             "anatomicalSite": list(
                 db.sample.find(
-                    {"specimen.attributes.attribute.tag": "anatomical_site"},
-                    {"specimen.attributes.attribute": 1, "_id": 0},
+                    {"specimen.attributes.tag": "anatomical_site"},
+                    {"specimen.attributes": 1, "_id": 0},
                 )
             )
         }
@@ -41,7 +41,7 @@ def getSearchTerms(db):
         {
             "biologicalBeing": list(
                 db.sample.find(
-                    {"biologicalBeing.attributes.attribute.tag": "animal_species"},
+                    {"biologicalBeing.attributes.tag": "animal_species"},
                     {"biologicalBeing": 1, "_id": 0},
                 )
             )
@@ -80,9 +80,9 @@ def __getSamples(request, db):
                 db.sample.find(
                     {
                         "$and": [
-                            {"specimen.attributes.attribute.tag": "age_at_extraction"},
-                            {"specimen.attributes.attribute.value": {"$lt": int(requestAge)}},
-                            {"specimen.attributes.attribute.value": requestAnatomical},
+                            {"specimen.attributes.tag": "age_at_extraction"},
+                            {"specimen.attributes.value": {"$lt": int(requestAge)}},
+                            {"specimen.attributes.value": requestAnatomical},
                         ]
                     }
                 )
@@ -95,9 +95,9 @@ def __getSamples(request, db):
                 db.sample.find(
                     {
                         "$and": [
-                            {"specimen.attributes.attribute.tag": "age_at_extraction"},
-                            {"specimen.attributes.attribute.value": {"$gt": int(requestAge)}},
-                            {"specimen.attributes.attribute.value": requestAnatomical},
+                            {"specimen.attributes.tag": "age_at_extraction"},
+                            {"specimen.attributes.value": {"$gt": int(requestAge)}},
+                            {"specimen.attributes.value": requestAnatomical},
                         ]
                     }
                 )
@@ -110,14 +110,14 @@ def __getSamples(request, db):
                 db.sample.find(
                     {
                         "$and": [
-                            {"specimen.attributes.attribute.tag": "age_at_extraction"},
+                            {"specimen.attributes.tag": "age_at_extraction"},
                             {
-                                "specimen.attributes.attribute.value": {
+                                "specimen.attributes.value": {
                                     "$gt": int(request.get("ageStart")),
                                     "$lt": int(request.get("ageEnd")),
                                 }
                             },
-                            {"specimen.attributes.attribute.value": requestAnatomical},
+                            {"specimen.attributes.value": requestAnatomical},
                         ]
                     }
                 )
@@ -129,14 +129,14 @@ def __getSamples(request, db):
             list(
                 db.sample.find(
                     {
-                        "biologicalBeing.attributes.attribute.value": requestBiological,
-                        "biologicalBeing.attributes.attribute.value": requestSex,
+                        "biologicalBeing.attributes.value": requestBiological,
+                        "biologicalBeing.attributes.value": requestSex,
                     }
                 )
             )
         )
     elif requestAge != "":
-        dbSamples.append(list(db.sample.find({"specimen.attributes.attribute.value": requestAnatomical})))
+        dbSamples.append(list(db.sample.find({"specimen.attributes.value": requestAnatomical})))
     return dbSamples
 
 

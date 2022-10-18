@@ -20,7 +20,7 @@ db =  pymongo.MongoClient(
     + "@"
     + os.environ["DB_HOST"]
     + ":27017/"
-    + os.environ["DB_NAME"]
+    + os.environ["DB_NAME"] + "?authSource=admin"
     )
 @routes.get("/")  # For Beacon API Specification
 @routes.get("/service-info") 
@@ -40,7 +40,6 @@ async def returnearchTerms(request: web.Request) -> web.Response:
 @routes.post("/query")
 async def query(request: web.Request) -> web.Response:
     """Search query."""
-   
     result = await searchQuery(request, db)
     if result == "No results found.":
         return web.json_response(result, content_type="application/json", dumps=ujson.dumps)
