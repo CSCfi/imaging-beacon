@@ -71,9 +71,30 @@ def __getSamples(request, db):
     requestAnatomical = request.get("anatomicalSite")
     requestSex = request.get("sex")
     requestAge = request.get("age")
-    
-    
-    if request.get("ageOption") == "<":
+
+    if requestBiological != "" and requestAnatomical != "" and requestSex != "" and requestAge != "":
+        # first search biological ids and add those to sample seach
+        print('\x1b[6;30;42m' + 'Success!' + '\x1b[0m')
+        dbSamples.append(
+            list(
+                db.sample.aggregate([
+                    {
+                        "$project": {
+                            "specimen": {
+                                "$filter": {
+                                "input": "$specimen", 
+                                "as": "item", 
+                                "cond": { "$eq": ["$biologicalBeing.alias", "$$item.extractedFrom.refname"]}
+                                }
+                            }
+                            }
+                    }
+                ]
+                )
+            )
+        )
+        print('\x1b[6;30;42m' + str(dbSamples) + '\x1b[0m')
+    elif request.get("ageOption") == "<":
         # Age less than
         dbSamples.append(
             list(
