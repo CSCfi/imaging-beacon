@@ -1,5 +1,6 @@
 import os
 from typing import Dict, Tuple, List, Optional
+import array as arr
 
 async def index(host: str) -> Dict:
     """Display beacon info."""
@@ -61,39 +62,50 @@ async def searchQuery(request, db):
     if not dbSamples[0]:
         return "No results found."
     images = __getImages(dbSamples[0], db)
-    
-    return __response(req,len(images))
+    amountOfImages = len(list(db.images.find({})))
+
+    return __response(req,[len(images[0]), amountOfImages])
 
 
 def __getSamples(request, db):
     dbSamples = []
-    requestBiological = request.get("biologicalBeing")
+    requestBiological = request.get("biologicalSpecies")
     requestAnatomical = request.get("anatomicalSite")
     requestSex = request.get("sex")
     requestAge = request.get("age")
-
-    if requestBiological != "" and requestAnatomical != "" and requestSex != "" and requestAge != "":
-        # first search biological ids and add those to sample seach
+    if requestBiological != None and requestAnatomical != None and requestSex != None and requestAge != None:
+        # first search biological ids and add those to sample search
         print('\x1b[6;30;42m' + 'Success!' + '\x1b[0m')
-        dbSamples.append(
+        biologicalList = []
+        aliasList= []
+        biologicalList.append(
             list(
-                db.sample.aggregate([
+                db.sample.find(
                     {
-                        "$project": {
-                            "specimen": {
-                                "$filter": {
-                                "input": "$specimen", 
-                                "as": "item", 
-                                "cond": { "$eq": ["$biologicalBeing.alias", "$$item.extractedFrom.refname"]}
-                                }
-                            }
-                            }
+                        "biologicalBeing.attributes.value": requestBiological,
+                        "biologicalBeing.attributes.value": requestSex,
                     }
-                ]
                 )
             )
         )
-        print('\x1b[6;30;42m' + str(dbSamples) + '\x1b[0m')
+        for biological in biologicalList:
+            aliasList.append(biological[0]["biologicalBeing"]["alias"])
+
+            dbSamples.append(
+                list(
+                    db.sample.find(
+                        {
+                            "$and": [
+                                {"specimen.attributes.tag": "age_at_extraction"},
+                                {"specimen.attributes.value": {"$gt": requestAge}},
+                                {"specimen.attributes.value": requestAnatomical},
+                                {"specimen.extractedFrom.refname": biological[0]["biologicalBeing"]["alias"]}
+                            ]
+                        }
+                    )
+                )
+            )
+
     elif request.get("ageOption") == "<":
         # Age less than
         dbSamples.append(
@@ -162,7 +174,6 @@ def __getSamples(request, db):
 
 
 def __getImages(dbSamples, db):
-
     images = []
     for sample in dbSamples:
         keys = sample.keys()
@@ -177,20 +188,20 @@ def __getImages(dbSamples, db):
 
 def __getImageByBiologicalBeing(biologicalBeing, db):
 
-    specimenOfBiologicalBeing = db.sample.find({"specimen.extractedFrom.refname": biologicalBeing.get("alias")})
+    specimenOfBiologicalBeing = list(db.sample.find({"specimen.extractedFrom.refname": biologicalBeing.get("alias")}))
 
-    blockOfSpecimen = db.sample.find({"block.sampledFrom.refname": specimenOfBiologicalBeing[0].get("specimen").get("alias")})
+    blockOfSpecimen = list(db.sample.find({"block.sampledFrom.refname": specimenOfBiologicalBeing[0].get("specimen").get("alias")}))
 
-    slideOfBlock = db.sample.find({"slide.createdFrom.refname": blockOfSpecimen[0].get("block").get("alias")})
+    slideOfBlock = list(db.sample.find({"slide.createdFrom.refname": blockOfSpecimen[0].get("block").get("alias")}))
 
-    return db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")})
+    return list(db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")}))
 
 
 def __getImageBySpecimen(specimen, db):
-    blockOfSpecimen = db.sample.find({"block.sampledFrom.refname": specimen.get("alias")})
+    blockOfSpecimen = list(db.sample.find({"block.sampledFrom.refname": specimen.get("alias")}))
   
-    slideOfBlock = db.sample.find({"slide.createdFrom.refname": blockOfSpecimen[0].get("block").get("alias")})
-  
+    slideOfBlock = list(db.sample.find({"slide.createdFrom.refname": blockOfSpecimen[0].get("block").get("alias")}))
+    
     return list(db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")}))
 
 
