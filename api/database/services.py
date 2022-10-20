@@ -90,21 +90,59 @@ def __getSamples(request, db):
         )
         for biological in biologicalList:
             aliasList.append(biological[0]["biologicalBeing"]["alias"])
-
-            dbSamples.append(
-                list(
-                    db.sample.find(
-                        {
-                            "$and": [
-                                {"specimen.attributes.tag": "age_at_extraction"},
-                                {"specimen.attributes.value": {"$gt": requestAge}},
-                                {"specimen.attributes.value": requestAnatomical},
-                                {"specimen.extractedFrom.refname": biological[0]["biologicalBeing"]["alias"]}
-                            ]
-                        }
+            if request.get("ageOption") == "<":
+            # Age less than
+                dbSamples.append(
+                    list(
+                        db.sample.find(
+                            {
+                                "$and": [
+                                    {"specimen.attributes.tag": "age_at_extraction"},
+                                    {"specimen.attributes.value": {"$lt": int(requestAge)}},
+                                    {"specimen.attributes.value": requestAnatomical},
+                                    {"specimen.extractedFrom.refname": biological[0]["biologicalBeing"]["alias"]}
+                                ]
+                            }
+                        )
                     )
                 )
-            )
+            elif request.get("ageOption") == ">":
+                # Age more than
+                dbSamples.append(
+                    list(
+                        db.sample.find(
+                            {
+                                "$and": [
+                                    {"specimen.attributes.tag": "age_at_extraction"},
+                                    {"specimen.attributes.value": {"$gt": int(requestAge)}},
+                                    {"specimen.attributes.value": requestAnatomical},
+                                    {"specimen.extractedFrom.refname": biological[0]["biologicalBeing"]["alias"]}
+                                ]
+                            }
+                        )
+                    )
+                )
+            elif request.get("ageOption") == "-":
+            # Ages between
+                dbSamples.append(
+                    list(
+                        db.sample.find(
+                            {
+                                "$and": [
+                                    {"specimen.attributes.tag": "age_at_extraction"},
+                                    {
+                                        "specimen.attributes.value": {
+                                            "$gt": int(request.get("ageStart")),
+                                            "$lt": int(request.get("ageEnd")),
+                                        }
+                                    },
+                                    {"specimen.attributes.value": requestAnatomical},
+                                    {"specimen.extractedFrom.refname": biological[0]["biologicalBeing"]["alias"]}
+                                ]
+                            }
+                        )
+                    )
+                )
 
     elif request.get("ageOption") == "<":
         # Age less than
