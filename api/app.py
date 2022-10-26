@@ -1,3 +1,4 @@
+import re
 from aiohttp import web
 import os
 import sys
@@ -9,6 +10,7 @@ import uvloop
 import asyncio
 import ujson
 from .database.services import index, getSearchTerms, searchQuery
+from .conf.info import Bp_info
 
 routes = web.RouteTableDef()
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -26,7 +28,7 @@ db =  pymongo.MongoClient(
 @routes.get("/service-info") 
 async def beacon_get(request: web.Request) -> web.Response:
     """Return service info."""
-    response = await index(request.host)
+    response = await Bp_info(request.host)
     return web.json_response(response)
 
 
