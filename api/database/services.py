@@ -2,6 +2,8 @@ import os
 from typing import Dict, Tuple, List, Optional
 import array as arr
 
+from ..config import DB
+
 async def index(host: str) -> Dict:
     """Display beacon info."""
     
@@ -26,7 +28,7 @@ async def index(host: str) -> Dict:
 
 def getSearchTerms(db):
     """Get all search terms."""
-    db = db[os.environ["DB_NAME"]]
+    db = db[DB["name"]]
     searchTerms = []
     searchTerms.append(
         {
@@ -57,7 +59,7 @@ async def searchQuery(request, db):
     req = await request.json()
     # Get sample info
 
-    db = db[os.environ["DB_NAME"]]
+    db = db[DB["name"]]
     dbSamples = __getSamples(req, db)
     if not dbSamples[0]:
         return "No results found."

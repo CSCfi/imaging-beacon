@@ -8,20 +8,15 @@ import bson.json_util as json_util
 import uvloop
 import asyncio
 import ujson
+
+from .config import APP, DB
 from .database.services import index, getSearchTerms, searchQuery
 
 routes = web.RouteTableDef()
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-db =  pymongo.MongoClient(
-    "mongodb://"
-    + os.environ["DB_USERNAME"]
-    + ":"
-    + os.environ["DB_PASSWORD"]
-    + "@"
-    + os.environ["DB_HOST"]
-    + ":27017/"
-    + os.environ["DB_NAME"]
-    )
+mongo_uri = f"mongodb://{DB['username']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['name']}?authSource={DB['auth']}"
+db =  pymongo.MongoClient(mongo_uri)
+
 @routes.get("/")  # For Beacon API Specification
 @routes.get("/service-info") 
 async def beacon_get(request: web.Request) -> web.Response:
@@ -94,8 +89,8 @@ def main():
    
     web.run_app(
         app,
-        host=os.environ.get("HOST", "0.0.0.0"),  # nosec
-        port=os.environ.get("PORT", "5000"),
+        host=APP["host"],  # nosec
+        port=APP["port"],
         shutdown_timeout=0,
         ssl_context=None,
     )
