@@ -1,9 +1,11 @@
 """Configuration Module."""
 from os import getenv
+from distutils.util import strtobool
 
 APP = {
     "host": getenv("APP_HOST", "0.0.0.0"),
     "port": getenv("APP_PORT", "8080"),
+    "cors": bool(strtobool(getenv("APP_CORS", "False"))),
 }
 
 DB = {

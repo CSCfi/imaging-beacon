@@ -17,6 +17,7 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 mongo_uri = f"mongodb://{DB['username']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['name']}?authSource={DB['auth']}"
 db =  pymongo.MongoClient(mongo_uri)
 
+
 @routes.get("/")  # For Beacon API Specification
 @routes.get("/service-info") 
 async def beacon_get(request: web.Request) -> web.Response:
@@ -40,6 +41,7 @@ async def query(request: web.Request) -> web.Response:
         return web.json_response(result, content_type="application/json", dumps=ujson.dumps)
     return web.json_response(result, content_type="application/json", dumps=ujson.dumps)
 
+
 def set_cors(server):
     """Set CORS rules."""
     # Configure CORS settings
@@ -59,28 +61,19 @@ def set_cors(server):
     for route in list(server.router.routes()):
         cors.add(route)
 
-async def destroy(app: web.Application) -> None:
-    """Upon server close, close the DB connection pool."""
-    # will defer this to asyncpg
-    await app["pool"].close()  # pragma: no cover
-
-async def initialize(app: web.Application) -> None:
-    """Spin up DB a connection pool with the HTTP server."""
-    
-    app["pool"] 
-    
-    set_cors(app)
 
 async def init() -> web.Application:
     """Initialise server."""
-    beacon = web.Application()
-    beacon.router.add_routes(routes)
-    return beacon
+    app = web.Application()
+    app.router.add_routes(routes)
+    if APP["cors"]:
+        set_cors(app)
+    return app
+
 
 def main():
-    """Run the beacon API.
-    At start also initialize a PostgreSQL connection pool.
-    """
+    """Start web application as a python process.
+    For development purposes only, for production use gunicorn instead."""
     # TO DO make it HTTPS and request certificate
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
@@ -89,7 +82,7 @@ def main():
    
     web.run_app(
         app,
-        host=APP["host"],  # nosec
+        host=APP["host"],
         port=APP["port"],
         shutdown_timeout=0,
         ssl_context=None,
@@ -97,8 +90,4 @@ def main():
 
 
 if __name__ == "__main__":
-    if sys.version_info < (3, 8):
-        LOG.error("beacon-python requires python 3.8")
-        sys.exit(1)
     main()
-
