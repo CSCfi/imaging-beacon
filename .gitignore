@@ -8,3 +8,4 @@ env/
 *$py.class
 *.json
 .DS_Store
+.vscode/
