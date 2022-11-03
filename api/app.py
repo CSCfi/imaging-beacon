@@ -18,7 +18,7 @@ mongo_uri = f"mongodb://{DB['username']}:{DB['password']}@{DB['host']}:{DB['port
 db =  pymongo.MongoClient(mongo_uri)
 
 
-@routes.get("/")  # For Beacon API Specification
+@routes.get("/")
 @routes.get("/service-info") 
 async def beacon_get(request: web.Request) -> web.Response:
     """Return service info."""

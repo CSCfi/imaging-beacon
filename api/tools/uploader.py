@@ -3,18 +3,11 @@ import json
 import sys
 import os
 
-client = pymongo.MongoClient(
-    "mongodb://"
-    + os.environ["DB_USERNAME"]
-    + ":"
-    + os.environ["DB_PASSWORD"]
-    + "@"
-    + os.environ["DB_HOST"]
-    + ":27017/"
-    + os.environ["DB_NAME"]+ "?authSource=admin"
-)
+from ..config import DB
 
-db = client[os.environ["DB_NAME"]]
+mongo_uri = f"mongodb://{DB['username']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['name']}?authSource={DB['auth']}"
+client =  pymongo.MongoClient(mongo_uri)
+db = client[DB["name"]]
 
 
 def populate():
