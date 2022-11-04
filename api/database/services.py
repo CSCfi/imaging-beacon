@@ -1,75 +1,6 @@
-import os
-from typing import Dict, Tuple, List, Optional
-import array as arr
-
-from ..config import DB
-
-async def index(host: str) -> Dict:
-    """Display beacon info."""
-    
-    beacon_info = {
-        "id": ".".join(reversed(host.split("."))),
-        "name": "Imaging beacon",
-        "type": {"group": "test", "artifact": "beacon", "version": "0.0.0"},
-        "description": "bp test beacon",
-        "organization": {
-            "name": "",
-            "url": "",
-        },
-        "contactUrl": "",
-        "documentationUrl": "",
-        "createdAt": "",
-        "updatedAt": "",
-        "environment": "",
-        "version": "",
-    }
-    return beacon_info
 
 
-def getSearchTerms(db):
-    """Get all search terms."""
-    db = db[DB["name"]]
-    searchTerms = []
-    searchTerms.append(
-        {
-            "anatomicalSite": list(
-                db.sample.find(
-                    {"specimen.attributes.tag": "anatomical_site"},
-                    {"specimen.attributes": 1, "_id": 0},
-                )
-            )
-        }
-    )
-    searchTerms.append(
-        {
-            "biologicalBeing": list(
-                db.sample.find(
-                    {"biologicalBeing.attributes.tag": "animal_species"},
-                    {"biologicalBeing": 1, "_id": 0},
-                )
-            )
-        }
-    )
-    
-    return searchTerms
-
-
-async def searchQuery(request, db):
-    """Search query."""
-    req = await request.json()
-    # Get sample info
-
-    db = db[DB["name"]]
-    dbSamples = __getSamples(req, db)
-    if not dbSamples[0]:
-        return "No results found."
-    images = __getImages(dbSamples[0], db)
-    amountOfImages = len(list(db.images.find({})))
-
-    return __response(req,[len(images[0]), amountOfImages])
-
-
-def __getSamples(request, db):
+def db_samples(request, db):
     dbSamples = []
     requestBiological = request.get("biologicalSpecies")
     requestAnatomical = request.get("anatomicalSite")
@@ -213,7 +144,7 @@ def __getSamples(request, db):
     return dbSamples
 
 
-def __getImages(dbSamples, db):
+def db_images(dbSamples, db):
     images = []
     for sample in dbSamples:
         keys = sample.keys()
@@ -243,15 +174,3 @@ def __getImageBySpecimen(specimen, db):
     slideOfBlock = list(db.sample.find({"slide.createdFrom.refname": blockOfSpecimen[0].get("block").get("alias")}))
     
     return list(db.images.find({"imageOf.refname": slideOfBlock[0].get("slide").get("alias")}))
-
-
-def __response(params, images):
-
-    beacon_response = {
-        "beaconId": "localhost:5000",
-        "apiVersion": "0.0.0",
-        "exists": True,
-        "images": images,
-    }
-
-    return beacon_response

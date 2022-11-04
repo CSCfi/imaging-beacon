@@ -10,33 +10,33 @@ import asyncio
 import ujson
 
 from .config import APP, DB
-from .database.services import index, getSearchTerms, searchQuery
+from .database import create_db_client
+from .endpoints.info import service_info, get_search_terms
+from .endpoints.query import search_query
 
 routes = web.RouteTableDef()
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-mongo_uri = f"mongodb://{DB['username']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['name']}?authSource={DB['auth']}"
-db =  pymongo.MongoClient(mongo_uri)
 
 
 @routes.get("/")
 @routes.get("/service-info") 
 async def beacon_get(request: web.Request) -> web.Response:
     """Return service info."""
-    response = await index(request.host)
+    response = await service_info(request)
     return web.json_response(response)
 
 
 @routes.get("/getSearchTerms")
 async def returnearchTerms(request: web.Request) -> web.Response:
     """Return db search terms."""
-    response = getSearchTerms(db)
+    response = get_search_terms(request)
     return web.json_response(response, content_type="application/json", dumps=ujson.dumps)
 
 
 @routes.post("/query")
 async def query(request: web.Request) -> web.Response:
     """Search query."""
-    result = await searchQuery(request, db)
+    result = await search_query(request)
     if result == "No results found.":
         return web.json_response(result, content_type="application/json", dumps=ujson.dumps)
     return web.json_response(result, content_type="application/json", dumps=ujson.dumps)
@@ -64,10 +64,15 @@ def set_cors(server):
 
 async def init() -> web.Application:
     """Initialise server."""
+
     app = web.Application()
     app.router.add_routes(routes)
     if APP["cors"]:
         set_cors(app)
+
+    client =  create_db_client(DB["uri"])
+    app["db"] = client[DB["name"]]
+
     return app
 
 

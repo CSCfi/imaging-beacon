@@ -16,3 +16,4 @@ DB = {
     "username": getenv("DB_USERNAME", "username"),
     "password": getenv("DB_PASSWORD", "password"),
 }
+DB["uri"] = f"mongodb://{DB['username']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['name']}?authSource={DB['auth']}"

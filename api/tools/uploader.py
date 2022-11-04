@@ -5,8 +5,7 @@ import os
 
 from ..config import DB
 
-mongo_uri = f"mongodb://{DB['username']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['name']}?authSource={DB['auth']}"
-client =  pymongo.MongoClient(mongo_uri)
+client =  pymongo.MongoClient(DB["uri"])
 db = client[DB["name"]]
 
 
