@@ -1,11 +1,11 @@
+"""Database uploader tool."""
 import pymongo
 import json
 import sys
-import os
 
 from ..config import DB
 
-client =  pymongo.MongoClient(DB["uri"])
+client = pymongo.MongoClient(DB["uri"])
 db = client[DB["name"]]
 
 

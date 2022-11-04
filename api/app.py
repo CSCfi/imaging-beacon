@@ -1,10 +1,6 @@
+"""Web app."""
 from aiohttp import web
-import os
-import sys
 import aiohttp_cors
-import pymongo
-import json
-import bson.json_util as json_util
 import uvloop
 import asyncio
 import ujson
@@ -19,7 +15,7 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 @routes.get("/")
-@routes.get("/service-info") 
+@routes.get("/service-info")
 async def beacon_get(request: web.Request) -> web.Response:
     """Return service info."""
     response = await service_info(request)
@@ -30,19 +26,25 @@ async def beacon_get(request: web.Request) -> web.Response:
 async def returnearchTerms(request: web.Request) -> web.Response:
     """Return db search terms."""
     response = get_search_terms(request)
-    return web.json_response(response, content_type="application/json", dumps=ujson.dumps)
+    return web.json_response(
+        response,
+        content_type="application/json",
+        dumps=ujson.dumps,
+    )
 
 
 @routes.post("/query")
 async def query(request: web.Request) -> web.Response:
     """Search query."""
     result = await search_query(request)
-    if result == "No results found.":
-        return web.json_response(result, content_type="application/json", dumps=ujson.dumps)
-    return web.json_response(result, content_type="application/json", dumps=ujson.dumps)
+    return web.json_response(
+        result,
+        content_type="application/json",
+        dumps=ujson.dumps,
+    )
 
 
-def set_cors(server):
+def set_cors(server: web.Application) -> None:
     """Set CORS rules."""
     # Configure CORS settings
     cors = aiohttp_cors.setup(
@@ -64,13 +66,12 @@ def set_cors(server):
 
 async def init() -> web.Application:
     """Initialise server."""
-
     app = web.Application()
     app.router.add_routes(routes)
     if APP["cors"]:
         set_cors(app)
 
-    client =  create_db_client(DB["uri"])
+    client = create_db_client(DB["uri"])
     app["db"] = client[DB["name"]]
 
     return app
@@ -78,13 +79,15 @@ async def init() -> web.Application:
 
 def main():
     """Start web application as a python process.
-    For development purposes only, for production use gunicorn instead."""
+
+    For development purposes only, for production use gunicorn instead.
+    """
     # TO DO make it HTTPS and request certificate
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     # sslcontext.check_hostname = False
     app = init()
-   
+
     web.run_app(
         app,
         host=APP["host"],

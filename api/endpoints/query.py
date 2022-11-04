@@ -1,29 +1,31 @@
 """Query endpoint is used to query the database."""
-from ..database.services import db_samples, db_images
-
+from typing import Dict, List
 from aiohttp.web import Request
 
-async def search_query(request: Request):
+from ..database.services import db_samples, db_images
+
+
+async def search_query(request: Request) -> Dict:
     """Search query."""
     req = await request.json()
     # Get sample info
 
     db = request.app["db"]
-    dbSamples = db_samples(req, db)
-    if not dbSamples[0]:
-        return "No results found."
-    images = db_images(dbSamples[0], db)
-    amountOfImages = len(list(db.images.find({})))
+    samples = db_samples(req, db)
+    if not samples[0]:
+        return _response(req, [])
+    images = db_images(samples[0], db)
+    amount_of_images = len(list(db.images.find({})))
 
-    return __response(req,[len(images[0]), amountOfImages])
+    return _response(request, [len(images[0]), amount_of_images])
 
 
-def __response(params, images):
+def _response(request: Request, images: List) -> Dict:
 
     beacon_response = {
-        "beaconId": "localhost:5000",
+        "beaconId": ".".join(reversed(request.host.split("."))),
         "apiVersion": "0.0.0",
-        "exists": True,
+        "exists": bool(images),
         "images": images,
     }
 
