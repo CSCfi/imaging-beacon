@@ -1,20 +1,12 @@
+"""Database uploader tool."""
 import pymongo
 import json
 import sys
-import os
 
-client = pymongo.MongoClient(
-    "mongodb://"
-    + os.environ["DB_USERNAME"]
-    + ":"
-    + os.environ["DB_PASSWORD"]
-    + "@"
-    + os.environ["DB_HOST"]
-    + ":27017/"
-    + os.environ["DB_NAME"]+ "?authSource=admin"
-)
+from ..config import DB
 
-db = client[os.environ["DB_NAME"]]
+client = pymongo.MongoClient(DB["uri"])
+db = client[DB["name"]]
 
 
 def populate():
