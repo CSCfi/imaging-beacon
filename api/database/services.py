@@ -13,7 +13,7 @@ def db_samples(request: Request, db: MongoClient) -> List:
     request_age = request.get("age", "0")
     if request_biological is not None and request_anatomical is not None and request_sex is not None and request_age is not None:
         # first search biological ids and add those to sample search
-        print("\x1b[6;30;42m" + "Success!" + "\x1b[0m")
+        
         biological_list = []
         alias_list = []
         biological_list.append(
