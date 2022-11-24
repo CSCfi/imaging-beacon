@@ -2,9 +2,10 @@
 from aiohttp.web import Request
 from pymongo import MongoClient
 from typing import List, Dict
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
-def db_samples(request: Request, db: MongoClient) -> List:
+def db_samples(request: Request, db: AsyncIOMotorClient) -> List:
     """Query for samples collection."""
     db_samples = []
     request_biological = request.get("biologicalSpecies")
@@ -153,7 +154,7 @@ def db_samples(request: Request, db: MongoClient) -> List:
     return db_samples
 
 
-def db_images(db_samples: List, db: MongoClient) -> List:
+def db_images(db_samples: List, db: AsyncIOMotorClient) -> List:
     """Query for images collection."""
     images = []
     for sample in db_samples:
@@ -167,7 +168,7 @@ def db_images(db_samples: List, db: MongoClient) -> List:
     return images
 
 
-def get_image_by_biological_being(biological_being: Dict, db: MongoClient):
+def get_image_by_biological_being(biological_being: Dict, db: AsyncIOMotorClient):
     """."""
     specimen_of_biological_being = list(db.sample.find({"specimen.extractedFrom.refname": biological_being.get("alias")}))
 
@@ -178,7 +179,7 @@ def get_image_by_biological_being(biological_being: Dict, db: MongoClient):
     return list(db.images.find({"imageOf.refname": slide_of_block[0].get("slide").get("alias")}))
 
 
-def get_image_by_specimen(specimen: Dict, db: MongoClient):
+def get_image_by_specimen(specimen: Dict, db: AsyncIOMotorClient):
     """."""
     block_of_specimen = list(db.sample.find({"block.sampledFrom.refname": specimen.get("alias")}))
 
