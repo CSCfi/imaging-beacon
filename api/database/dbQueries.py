@@ -19,6 +19,8 @@ def getBiological(db: MongoClient, biological, sex) -> List:
         )
     )
 
+def getBiologicalsBySex(db: MongoClient, sex) -> List:
+    return list(db.sample.find({"biologicalBeing.attributes.value": sex}))
 
 def getBiologicalBySamples(db: MongoClient, request_age, ageOption, ageStart, ageEnd, request_anatomical, biological_list: List) -> List:
     alias_list = []

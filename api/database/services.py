@@ -2,7 +2,7 @@
 from aiohttp.web import Request
 from pymongo import MongoClient
 from typing import List, Dict
-from .dbQueries import getAll, getBiological, getBiologicalBySamples, getSampleByAge
+from .dbQueries import getAll, getBiological, getBiologicalBySamples, getSampleByAge, getBiologicalsBySex
 
 
 def db_samples(request: Request, db: MongoClient) -> List:
@@ -42,10 +42,29 @@ def db_samples(request: Request, db: MongoClient) -> List:
                 )
             )
         )
+    elif request_anatomical != "All" and request_sex != "All":
+        biological_list = getBiologicalsBySex(db,request_sex)
+      
+        samples = []
+        for biological in biological_list:
+            print('\x1b[6;30;42m' + str(biological["biologicalBeing"]["alias"]) + '\x1b[0m')
+            samples.append(
+                list(
+                    db.sample.find(
+                        {
+                            "$and": [
+                                {"specimen.attributes.value": request_anatomical},
+                                {"specimen.extractedFrom.refname": biological["biologicalBeing"]["alias"]},
+                            ]
+                        }
+                    )
+                )
+            )
+        db_samples.append(samples[0])
     elif request_biological != "All":
         db_samples.append(list(db.sample.find({"biologicalBeing.attributes.value": request_biological})))
     elif  request_sex != "All":
-        db_samples.append(list(db.sample.find({"biologicalBeing.attributes.value": request_sex})))
+        db_samples.append(getBiologicalsBySex(db,request_sex))
     elif request_anatomical != "All":
         db_samples.append(list(db.sample.find({"specimen.attributes.value": request_anatomical})))
     return db_samples
