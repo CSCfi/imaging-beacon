@@ -2,7 +2,7 @@
 from aiohttp.web import Request
 from pymongo import MongoClient
 from typing import List, Dict
-from .dbQueries import getAll, getBiological, getBiologicalSamples, getSampleByAge
+from .dbQueries import getAll, getBiological, getBiologicalBySamples, getSampleByAge
 
 
 def db_samples(request: Request, db: MongoClient) -> List:
@@ -21,7 +21,7 @@ def db_samples(request: Request, db: MongoClient) -> List:
         biological_list.append(getBiological(db, request_biological, request_sex))
        
         db_samples.append(
-            getBiologicalSamples(
+            getBiologicalBySamples(
                 db, request_age, request.get("ageOption"), request.get("ageStart", "0"), request.get("ageEnd", "0"), request_anatomical, biological_list
             )
         )

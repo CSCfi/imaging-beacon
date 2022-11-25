@@ -20,7 +20,7 @@ def getBiological(db: MongoClient, biological, sex) -> List:
     )
 
 
-def getBiologicalSamples(db: MongoClient, request_age, ageOption, ageStart, ageEnd, request_anatomical, biological_list: List) -> List:
+def getBiologicalBySamples(db: MongoClient, request_age, ageOption, ageStart, ageEnd, request_anatomical, biological_list: List) -> List:
     alias_list = []
     samples = []
     for biological in biological_list:
