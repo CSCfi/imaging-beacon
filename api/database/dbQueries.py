@@ -135,4 +135,4 @@ def getSampleByAge(db: MongoClient, request_age, ageOption, ageStart, ageEnd, re
                 )
             )
         )
-    return db_samples
+    return db_samples[0]
