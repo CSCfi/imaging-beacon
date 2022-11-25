@@ -25,6 +25,7 @@ async def beacon_get(request: web.Request) -> web.Response:
 @routes.get("/getSearchTerms")
 async def returnearchTerms(request: web.Request) -> web.Response:
     """Return db search terms."""
+
     response = get_search_terms(request)
     return web.json_response(
         response,

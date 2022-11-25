@@ -13,7 +13,7 @@ async def search_query(request: Request) -> Dict:
     db = request.app["db"]
     samples = db_samples(req, db)
     if not samples[0]:
-        return _response(req, [])
+        return _response(request, [])
     images = db_images(samples[0], db)
     amount_of_images = len(list(db.images.find({})))
 
