@@ -47,7 +47,6 @@ def db_samples(request: Request, db: MongoClient) -> List:
       
         samples = []
         for biological in biological_list:
-            print('\x1b[6;30;42m' + str(biological["biologicalBeing"]["alias"]) + '\x1b[0m')
             samples.append(
                 list(
                     db.sample.find(
