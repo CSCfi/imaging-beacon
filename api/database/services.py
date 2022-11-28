@@ -45,7 +45,7 @@ def db_samples(request: Request, db: MongoClient) -> List:
         )
     elif request_anatomical != "All" and request_sex != "All":
         biological_list = getBiologicalsBySex(db, request_sex)
-        print('\x1b[6;30;42m' + str(type(biological_list)) + '\x1b[0m')
+        print("\x1b[6;30;42m" + str(type(biological_list)) + "\x1b[0m")
         samples = []
         for biological in biological_list:
             being = biological.get("biologicalBeing")
