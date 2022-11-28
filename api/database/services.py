@@ -7,7 +7,6 @@ from .dbQueries import getAll, getBiological, getBiologicalBySamples, getSampleB
 
 def db_samples(request: Request, db: MongoClient) -> List:
     """Query for samples collection."""
-    
     db_samples = []
     request_biological = request.get("biologicalSpecies")
     request_anatomical = request.get("anatomicalSite")
@@ -19,7 +18,7 @@ def db_samples(request: Request, db: MongoClient) -> List:
         # first search biological ids and add those to sample search
         biological_list = []
         biological_list.append(getBiological(db, request_biological, request_sex))
-       
+
         db_samples.append(
             getBiologicalBySamples(
                 db, request_age, request.get("ageOption"), request.get("ageStart", "0"), request.get("ageEnd", "0"), request_anatomical, biological_list
@@ -27,7 +26,9 @@ def db_samples(request: Request, db: MongoClient) -> List:
         )
     elif request.get("ageOption") != "Any":
         # Age less than
-        db_samples.append(getSampleByAge(db, request_age, request.get("ageOption"), request.get("ageStart", "0"), request.get("ageEnd", "0"), request_anatomical))
+        db_samples.append(
+            getSampleByAge(db, request_age, request.get("ageOption"), request.get("ageStart", "0"), request.get("ageEnd", "0"), request_anatomical)
+        )
 
     elif request_biological != "All" and request_sex != "All":
         db_samples.append(
@@ -43,17 +44,18 @@ def db_samples(request: Request, db: MongoClient) -> List:
             )
         )
     elif request_anatomical != "All" and request_sex != "All":
-        biological_list = getBiologicalsBySex(db,request_sex)
-      
+        biological_list = getBiologicalsBySex(db, request_sex)
+        print('\x1b[6;30;42m' + str(type(biological_list)) + '\x1b[0m')
         samples = []
         for biological in biological_list:
+            being = biological.get("biologicalBeing")
             samples.append(
                 list(
                     db.sample.find(
                         {
                             "$and": [
                                 {"specimen.attributes.value": request_anatomical},
-                                {"specimen.extractedFrom.refname": biological["biologicalBeing"]["alias"]},
+                                {"specimen.extractedFrom.refname": being["alias"]},
                             ]
                         }
                     )
@@ -62,8 +64,8 @@ def db_samples(request: Request, db: MongoClient) -> List:
         db_samples.append(samples[0])
     elif request_biological != "All":
         db_samples.append(list(db.sample.find({"biologicalBeing.attributes.value": request_biological})))
-    elif  request_sex != "All":
-        db_samples.append(getBiologicalsBySex(db,request_sex))
+    elif request_sex != "All":
+        db_samples.append(getBiologicalsBySex(db, request_sex))
     elif request_anatomical != "All":
         db_samples.append(list(db.sample.find({"specimen.attributes.value": request_anatomical})))
     return db_samples

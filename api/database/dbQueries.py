@@ -1,13 +1,16 @@
+"""Db queries."""
 from typing import List
 from aiohttp.web import Request
 from pymongo import MongoClient
 
 
 def getAll(request: Request, db: MongoClient) -> List:
+    """Return all images from a dataset."""
     return list(db.sample.find({"specimen": {"$exists": "true"}}))
 
 
 def getBiological(db: MongoClient, biological, sex) -> List:
+    """Search by biological values."""
     return list(
         db.sample.find(
             {
@@ -19,10 +22,14 @@ def getBiological(db: MongoClient, biological, sex) -> List:
         )
     )
 
+
 def getBiologicalsBySex(db: MongoClient, sex) -> List:
+    """Seach biologicals by sex."""
     return list(db.sample.find({"biologicalBeing.attributes.value": sex}))
 
+
 def getBiologicalBySamples(db: MongoClient, request_age, ageOption, ageStart, ageEnd, request_anatomical, biological_list: List) -> List:
+    """Search samples by biologicals."""
     alias_list = []
     samples = []
     for biological in biological_list:
@@ -86,6 +93,7 @@ def getBiologicalBySamples(db: MongoClient, request_age, ageOption, ageStart, ag
 
 
 def getSampleByAge(db: MongoClient, request_age, ageOption, ageStart, ageEnd, request_anatomical) -> List:
+    """Get samples by their age."""
     db_samples = []
     if ageOption == "<":
         # Age less than
