@@ -9,6 +9,7 @@ from .config import APP, DB
 from .database import create_db_client
 from .endpoints.info import service_info, get_search_terms
 from .endpoints.query import search_query
+from .tools.logger import LOG
 
 routes = web.RouteTableDef()
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -18,6 +19,7 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 @routes.get("/service-info")
 async def beacon_get(request: web.Request) -> web.Response:
     """Return service info."""
+    LOG.debug("Get /serviceInfo received")
     response = await service_info(request)
     return web.json_response(response)
 
@@ -25,6 +27,7 @@ async def beacon_get(request: web.Request) -> web.Response:
 @routes.get("/getSearchTerms")
 async def returnearchTerms(request: web.Request) -> web.Response:
     """Return db search terms."""
+    LOG.debug("Get /searchTerms received")
     response = get_search_terms(request)
     return web.json_response(
         response,
@@ -36,6 +39,7 @@ async def returnearchTerms(request: web.Request) -> web.Response:
 @routes.post("/query")
 async def query(request: web.Request) -> web.Response:
     """Search query."""
+    LOG.debug("Post /query received")
     result = await search_query(request)
     return web.json_response(
         result,
@@ -47,6 +51,7 @@ async def query(request: web.Request) -> web.Response:
 def set_cors(server: web.Application) -> None:
     """Set CORS rules."""
     # Configure CORS settings
+    LOG.debug("Applying CORS rules.")
     cors = aiohttp_cors.setup(
         server,
         defaults={
@@ -66,6 +71,7 @@ def set_cors(server: web.Application) -> None:
 
 async def init() -> web.Application:
     """Initialise server."""
+    LOG.info("Creating database connection pool.")
     app = web.Application()
     app.router.add_routes(routes)
     if APP["cors"]:
@@ -82,6 +88,7 @@ def main():
 
     For development purposes only, for production use gunicorn instead.
     """
+    LOG.info("Starting server build.")
     # TO DO make it HTTPS and request certificate
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
