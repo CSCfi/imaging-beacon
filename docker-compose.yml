@@ -1,80 +1,54 @@
-version: '3'
+version: '3.2'
 services:
 
-  flask:
+  app:
     build:
-      context: api
+      context: .
       dockerfile: Dockerfile
-    container_name: flask
+    container_name: app
     env_file: .env
-    image: flask-python:3.9-alpine
+    image: cscfi/imaging-beacon:latest
     restart: unless-stopped
     environment:
-      APP_ENV: "prod"
-      APP_DEBUG: "False"
-      APP_PORT: 8080
-      MONGODB_DATABASE: flaskdb
-      MONGODB_USERNAME: ${MONGODB_USERNAME}
-      MONGODB_PASSWORD: ${MONGODB_PASSWORD}
-      MONGODB_HOSTNAME: ${MONGODB_HOSTNAME}
-    volumes:
-      - ./api:/var/www
+      APP_HOST: ${APP_HOST}
+      APP_PORT: ${APP_PORT}
+      APP_CORS: ${APP_CORS}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_AUTH: ${DB_AUTH}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
     depends_on:
       - mongodb
-    networks:
-      - frontend
-      - backend
+    # networks:
+    #   - backend
+    ports:
+      - "8080:8080"
 
   mongodb:
     image: 'mongo'
     container_name: mongodb
+    env_file: .env
     restart: unless-stopped
     command: mongod --auth
     environment:
-      MONGO_INITDB_DATABASE: flaskdb
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
       MONGODB_DATA_DIR: /data/db
       MONDODB_LOG_DIR: /dev/null
     volumes:
-      - mongodbdata:/data/db
-    networks:
-      - backend
+      - mongodb:/data/db
+    # networks:
+    #   - backend
     ports:
-      - 27017:27017
-
-  webserver:
-    build:
-      context: nginx
-      dockerfile: Dockerfile
-    image: webserver:latest
-    container_name: webserver
-    restart: unless-stopped
-    environment:
-      APP_ENV: "prod"
-      APP_NAME: "webserver"
-      APP_DEBUG: "false"
-      SERVICE_NAME: "webserver"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - nginxdata:/var/log/nginx
-    depends_on:
-      - flask
-    networks:
-      - frontend
+      - "27017:27017"
 
 networks:
-  frontend:
-    driver: bridge
   backend:
     driver: bridge
 
 volumes:
-  mongodbdata:
-    driver: local
-  appdata:
-    driver: local
-  nginxdata:
+  mongodb:
     driver: local

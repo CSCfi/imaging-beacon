@@ -1,7 +1,7 @@
 #!/bin/bash
 
-THE_HOST=${HOST:="0.0.0.0"}
-THE_PORT=${PORT:="8080"}
+THE_HOST=${APP_HOST:="0.0.0.0"}
+THE_PORT=${APP_PORT:="8080"}
 
-echo 'Start bp-beacon-python API Web Server'
-exec gunicorn api.app:init --bind $THE_HOST:$THE_PORT --worker-class aiohttp.GunicornUVLoopWebWorker --workers 4
+echo 'start imaging-beacon server'
+exec gunicorn api.app:init --bind $THE_HOST:$THE_PORT --worker-class aiohttp.GunicornUVLoopWebWorker --workers 2

@@ -1,22 +1,41 @@
-FROM python:3.9-alpine
+FROM python:3.8-alpine3.13 as BUILD
 
-LABEL MAINTAINER="csc"
+LABEL maintainer "CSC Developers"
 
-ENV GROUP_ID=1000 \
-    USER_ID=1000
+RUN apk add --update \
+    && apk add --no-cache build-base curl-dev linux-headers bash git musl-dev libffi-dev \
+    && apk add --no-cache python3-dev openssl-dev rust cargo libstdc++ \
+    && rm -rf /var/cache/apk/*
 
-WORKDIR /var/www/
+RUN mkdir -p /app
 
-ADD ./requirements.txt /var/www/requirements.txt
-RUN pip install -r requirements.txt
-ADD . /var/www/
-RUN pip install gunicorn
+WORKDIR /app
 
-RUN addgroup -g $GROUP_ID www
-RUN adduser -D -u $USER_ID -G www www -s /bin/sh
+COPY ./requirements.txt /app
 
-USER www
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    pip install gunicorn
 
-EXPOSE 5000
+FROM python:3.8-alpine3.13
 
-CMD [ "gunicorn", "-w", "4", "--bind", "0.0.0.0:5000", "wsgi"]
+RUN apk add --no-cache --update libstdc++ bash
+
+LABEL maintainer "CSC Developers"
+LABEL org.label-schema.schema-version="1.0"
+LABEL org.label-schema.vcs-url="https://github.com/CSCfi/imaging-beacon"
+
+COPY --from=BUILD /usr/local/lib/python3.8/ usr/local/lib/python3.8/
+
+COPY --from=BUILD /usr/local/bin/gunicorn /usr/local/bin/
+
+RUN mkdir -p /app
+
+WORKDIR /app
+
+COPY ./api /app/api
+COPY ./deploy/app.sh /app/app.sh
+
+RUN chmod +x /app/app.sh
+
+ENTRYPOINT ["/bin/bash", "-c", "/app/app.sh"]
