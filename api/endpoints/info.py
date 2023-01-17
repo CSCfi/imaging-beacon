@@ -1,28 +1,14 @@
 """Info endpoint provides useful information and documentation on the service."""
-
-from typing import Dict, List
-
 from aiohttp.web import Request
+from typing import Dict, List
+from ..config import APP
 
 
 async def service_info(request: Request) -> Dict:
     """Display beacon info."""
-    return {
-        "id": ".".join(reversed(request.host.split("."))),
-        "name": "Imaging beacon",
-        "type": {"group": "test", "artifact": "beacon", "version": "0.0.0"},
-        "description": "bp test beacon",
-        "organization": {
-            "name": "",
-            "url": "",
-        },
-        "contactUrl": "",
-        "documentationUrl": "",
-        "createdAt": "",
-        "updatedAt": "",
-        "environment": "",
-        "version": "",
-    }
+    service_info = APP["info"]
+    service_info["id"] = ".".join(reversed(request.host.split(".")))
+    return service_info
 
 
 def get_search_terms(request: Request) -> List:

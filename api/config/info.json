@@ -1,0 +1,23 @@
+{
+    "id": "id should be reverse domain notation, this is automatically filled during runtime",
+    "name": "CSC Imaging Beacon",
+    "apiVersion": "1.0.0",
+    "organization": {
+        "id": "fi.csc",
+        "name": "CSC - IT Center for Science",
+        "description": "Finnish expertise in ICT for research, education, culture and public administration",
+        "address": "Keilaranta 14, Espoo, finland",
+        "welcomeUrl": "http://localhost:8080/",
+        "contactUrl": "http://localhost:8080/",
+        "logoUrl": "http://localhost:8080/logo.png",
+        "info": {}
+    },
+    "description": "GA4GH Beacon inspired discovery tool for histology datasets for ELIXIR BIGPICTURE project",
+    "version": "1.0.0",
+    "welcomeUrl": "http://localhost:8080/",
+    "alternativeUrl": "http://localhost:8080/",
+    "createDateTime": "2023-01-17T00:00:00",
+    "updateDateTime": "this is automatically filled during runtime",
+    "datasets": [],
+    "info": {}
+}

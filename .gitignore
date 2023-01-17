@@ -6,6 +6,5 @@ env/
 ./api/_pycache__/
 *.py[cod]
 *$py.class
-*.json
 .DS_Store
 .vscode/

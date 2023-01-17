@@ -7,12 +7,17 @@ The following environment variables can be given in a `.env` file for `docker-co
 APP_HOST=localhost
 APP_PORT=8080
 APP_CORS=False
+APP_INFO=api/config/info.json
 DB_HOST=localhost
 DB_PORT=27017
 DB_NAME=beacon
 DB_AUTH=admin
 DB_USERNAME=username
 DB_PASSWORD=password
+```
+The environment variables can be loaded for development with:
+```
+export $(grep -v '^#' .env | xargs)
 ```
 
 ## Development
@@ -27,7 +32,7 @@ tox -p auto
 ```
 
 ## Deployment
-Building an image `docker` and deploying the database and application with `docker-compose`.
+Building an image with `docker` and deploying the database and application with `docker-compose`.
 ```
 docker-compose up -d
 ```
