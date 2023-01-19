@@ -1,0 +1,76 @@
+{
+    "definitions": {},
+    "type": "object",
+    "title": "POST /query schema",
+    "required": [
+        "biologicalSpecies",
+        "anatomicalSite",
+        "sex",
+        "age"
+    ],
+    "properties": {
+        "biologicalSpecies": {
+            "title": "Origin species of sample, e.g. human",
+            "type": "string"
+        },
+        "anatomicalSite": {
+            "title": "Extraction site for sample, e.g. kidney",
+            "type": "string"
+        },
+        "sex": {
+            "title": "Sex of sample donor",
+            "type": "string",
+            "enum": [
+                "F",
+                "M"
+            ]
+        },
+        "age": {
+            "title": "Age of extraction for sample. Age range is given in an array, e.g. [20, 30]. If only one value is given in an array, e.g. [30], then `ageOption` must also be used",
+            "type": [
+                "integer",
+                "array"
+            ],
+            "items": {
+                "type": "integer"
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "uniqueItems": true
+        },
+        "ageOption": {
+            "title": "Age comparator for greater than or less than",
+            "type": "string",
+            "enum": [
+                ">",
+                "<"
+            ]
+        },
+        "searchTerm": {
+            "title": "Keywords for dataset description lookup",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "if": {
+        "properties": {
+            "age": {
+                "type": "integer"
+            }
+        }
+    },
+    "then": {
+        "required": [
+            "ageOption"
+        ]
+    },
+    "else": {
+        "properties": {
+            "age": {
+                "minItems": 2
+            }
+        }
+    }
+}

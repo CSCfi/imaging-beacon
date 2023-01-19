@@ -6,6 +6,7 @@ import asyncio
 import ujson
 
 from .config import APP, DB
+from .schemas import load_schema, validate_schema
 from .database import create_db_client
 from .endpoints.info import service_info, get_search_terms
 from .endpoints.query import search_query
@@ -34,6 +35,7 @@ async def returnearchTerms(request: web.Request) -> web.Response:
 
 
 @routes.post("/query")
+@validate_schema(load_schema("query"))
 async def query(request: web.Request) -> web.Response:
     """Search query."""
     result = await search_query(request)
