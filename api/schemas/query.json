@@ -6,7 +6,8 @@
         "biologicalSpecies",
         "anatomicalSite",
         "sex",
-        "age"
+        "age",
+        "ageUnit"
     ],
     "properties": {
         "biologicalSpecies": {
@@ -37,6 +38,16 @@
             "minItems": 2,
             "maxItems": 2,
             "uniqueItems": true
+        },
+        "ageUnit": {
+            "title": "Age unit in ISO 8601 notation",
+            "type": "string",
+            "enum": [
+                "Y",
+                "M",
+                "W",
+                "S"
+            ]
         },
         "ageOption": {
             "title": "Age comparator for greater than or less than",
