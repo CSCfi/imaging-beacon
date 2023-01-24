@@ -73,8 +73,7 @@ async def init() -> web.Application:
     if APP["cors"]:
         set_cors(app)
 
-    client = create_db_client(DB["uri"])
-    app["db"] = client[DB["name"]]
+    app["db_client"] = create_db_client()
 
     return app
 

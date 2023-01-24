@@ -13,7 +13,7 @@ async def service_info(request: Request) -> Dict:
 
 def get_search_terms(request: Request) -> List:
     """Get all search terms."""
-    db = request.app["db"]
+    db = request.app["db_client"]
     search_terms = []
     search_terms.append(
         {
