@@ -5,3 +5,6 @@ ujson
 uvloop
 jsonschema
 gunicorn
+motor
+pytest
+pytest-asyncio

@@ -1,20 +1,32 @@
 """Database uploader tool."""
-import pymongo
 import json
 import sys
+from os import getenv
+from typing import Dict
 
-from ..config import DB
+from motor.motor_asyncio import AsyncIOMotorClient
 
-client = pymongo.MongoClient(DB["uri"])
-db = client[DB["name"]]
 
+DB: Dict = {
+    "host": getenv("DB_HOST", "localhost"),
+    "port": getenv("DB_PORT", 27017),
+    "name": getenv("DB_NAME", "beacon"),
+    "auth": getenv("DB_AUTH", "admin"),
+    "username": getenv("DB_USERNAME", "username"),
+    "password": getenv("DB_PASSWORD", "password"),
+}
+DB["uri"] = f"mongodb://{DB['username']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['name']}?authSource={DB['auth']}"
+
+db_client = AsyncIOMotorClient(DB["uri"], connectTimeoutMS=15000, serverSelectionTimeoutMS=15000)
+db_name = DB["name"]
+db_service = db_client[db_name]
 
 def populate():
     """Populate database function."""
     if sys.argv[2] != "":
-        collection = db[sys.argv[2]]
+        collection = db_service[sys.argv[2]]
     else:
-        collection = db["dataset"]
+        collection = db_service["dataset"]
     with open(sys.argv[1]) as file:
         file_data = json.load(file)
 

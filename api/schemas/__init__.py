@@ -8,7 +8,6 @@ from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
 
 
-
 def load_schema(name):
     """Load JSON schemas."""
     module_path = os.path.dirname(__file__)

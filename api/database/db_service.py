@@ -1,7 +1,7 @@
 """DB Service that handles MongoDB database connections."""
 from typing import Dict, List
 
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCursor
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
 class DBService:
@@ -27,13 +27,13 @@ class DBService:
         :returns: query result list
         """
         # LOG.debug(f"DB doc query performed in {collection}.")
-        projection = {"_id": False, "eppn": False} if collection == "user" else {"_id": False}
+        projection = {"_id": False}
         if custom_projection:
             projection = custom_projection
         query = self.database[collection].find(query, projection)
-        return [item for item in query]
+        return query
 
-    def do_aggregate(self, collection: str, query: List) -> List:
+    async def do_aggregate(self, collection: str, query: List) -> List:
         """Peform aggregate query.
         
         :param collection: Collection where document should be searched from
@@ -42,4 +42,4 @@ class DBService:
         """
         # LOG.debug(f"DB aggregate performed in {collection}.")
         aggregate = self.database[collection].aggregate(query)
-        return [doc for doc in aggregate]
+        return [doc async for doc in aggregate]

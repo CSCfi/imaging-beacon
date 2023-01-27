@@ -1,4 +1,5 @@
 {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "definitions": {},
     "type": "object",
     "title": "POST /query schema",
@@ -23,7 +24,8 @@
             "type": "string",
             "enum": [
                 "F",
-                "M"
+                "M",
+                ""
             ]
         },
         "age": {

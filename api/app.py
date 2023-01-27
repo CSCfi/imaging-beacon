@@ -40,9 +40,9 @@ async def query(request: web.Request) -> web.Response:
     """Search query."""
     result = await search_query(request)
     return web.json_response(
-        result,
-        content_type="application/json",
-        dumps=ujson.dumps,
+        body=result,
+        status=200,
+        content_type="application/json"
     )
 
 
