@@ -22,27 +22,17 @@
             ]
         },
         "age": {
-            "title": "Age of extraction for sample. Age range is given in an array, e.g. [20, 30]. If only one value is given in an array, e.g. [30], then `ageOption` must also be used",
+            "title": "Age of extraction for sample in ISO 8601 Duration notation. Age range is given in an array, e.g. [P20Y, P30Y]. If only one value is given, e.g. 'P30Y', then `ageOption` must also be used",
             "type": [
-                "integer",
+                "string",
                 "array"
             ],
             "items": {
-                "type": "integer"
+                "type": "string"
             },
             "minItems": 2,
             "maxItems": 2,
             "uniqueItems": true
-        },
-        "ageUnit": {
-            "title": "Age unit in ISO 8601 notation",
-            "type": "string",
-            "enum": [
-                "Y",
-                "M",
-                "W",
-                "S"
-            ]
         },
         "ageOption": {
             "title": "Age comparator for greater than or less than",
@@ -57,6 +47,25 @@
             "type": "array",
             "items": {
                 "type": "string"
+            }
+        }
+    },
+    "if": {
+        "properties": {
+            "age": {
+                "type": "string"
+            }
+        }
+    },
+    "then": {
+        "required": [
+            "ageOption"
+        ]
+    },
+    "else": {
+        "properties": {
+            "age": {
+                "minItems": 2
             }
         }
     }
