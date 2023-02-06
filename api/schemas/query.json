@@ -3,13 +3,6 @@
     "definitions": {},
     "type": "object",
     "title": "POST /query schema",
-    "required": [
-        "biologicalSpecies",
-        "anatomicalSite",
-        "sex",
-        "age",
-        "ageUnit"
-    ],
     "properties": {
         "biologicalSpecies": {
             "title": "Origin species of sample, e.g. human",
@@ -64,25 +57,6 @@
             "type": "array",
             "items": {
                 "type": "string"
-            }
-        }
-    },
-    "if": {
-        "properties": {
-            "age": {
-                "type": "integer"
-            }
-        }
-    },
-    "then": {
-        "required": [
-            "ageOption"
-        ]
-    },
-    "else": {
-        "properties": {
-            "age": {
-                "minItems": 2
             }
         }
     }
